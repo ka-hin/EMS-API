@@ -23,6 +23,9 @@ var EmployeeSchema = new Schema({
   ic:{
     type: String
   },
+  email:{
+    type: String
+  },
   schedule_id:{
       type: String
   },
