@@ -3,4 +3,7 @@ module.exports = function(app){
 
   app.route('/login/:id/:pass')
     .get(ems.getLoginDetails);
+
+  app.route('/profile/:id')
+    .get(ems.getProfileDetails);
 };
