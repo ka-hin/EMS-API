@@ -1,8 +1,9 @@
 module.exports = function(app){
   var ems = require('../controllers/emsController');
+  var auth = require('../controllers/authController');
 
   app.route('/login/:id/:pass')
-    .get(ems.getLoginDetails);
+    .get(auth.getLoginDetails);
 
   app.route('/profile/:id')
     .get(ems.getProfileDetails);
