@@ -48,7 +48,14 @@ exports.getAllEmployees = async function(req, res){
             });
         }
 
-        
+        if(employee.role === "Manager"){
+            Employee.find({department_id:employee.department_id, domain_id:{$ne:domainID},activated: true},'-_id -password',function(err,employee){
+                if(err){
+                    res.send(err);
+                }
+                res.send(employee);
+            });
+        }
         
     });
 };
