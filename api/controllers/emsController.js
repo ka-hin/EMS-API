@@ -59,3 +59,10 @@ exports.getAllEmployees = async function(req, res){
         
     });
 };
+
+exports.updateEmployee = async function(req, res){
+    const selectedEmpID = req.params.selectedEmpID;
+    const update = req.body;
+    let changes = await Employee.findOneAndUpdate({domain_id: selectedEmpID}, update,{new:true});
+    res.send(changes);
+};

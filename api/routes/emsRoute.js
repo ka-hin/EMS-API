@@ -10,4 +10,7 @@ module.exports = function(app){
 
   app.route('/allemployees/:id')
     .get(ems.getAllEmployees);
+
+  app.route('/updateemployee/:selectedEmpID')
+    .patch(ems.updateEmployee);
 };
