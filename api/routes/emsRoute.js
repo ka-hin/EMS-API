@@ -7,4 +7,7 @@ module.exports = function(app){
 
   app.route('/profile/:id')
     .get(ems.getProfileDetails);
+
+  app.route('/allemployees/:id')
+    .get(ems.getAllEmployees);
 };

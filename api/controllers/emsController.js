@@ -29,25 +29,26 @@ exports.getProfileDetails = async function(req,res){
             });
         });
     });
-
-    
-
-    
-    
 };
 
-async function employeeDetails(eid){
-    await Employee.findOne({domain_id:eid}, function(err,employee){
-        if(err)
-            console.log(err);
-        console.log(employee);
-    });
-}
+exports.getAllEmployees = async function(req, res){
+    const domainID = req.params.id;
 
-async function deptDetails(dept_id){
-    await Department.findOne({department_id : dept_id}, function(err,department){
-        if(err)
-            console.log(err);
-        return department;
+    await Employee.findOne({domain_id:domainID}, function(err, employee){
+        if(err){
+            res.send(err);
+        }
+
+        if(employee.role === "Admin"){
+            Employee.find({domain_id:{$ne:domainID}}, "-_id domain_id name role department_id activated",function(err,employee){
+                if(err){
+                    res.send(err);
+                }
+                res.send(employee);
+            });
+        }
+
+        
+        
     });
-}
+};
