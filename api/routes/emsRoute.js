@@ -8,7 +8,7 @@ module.exports = function(app){
   app.route('/profile/:id')
     .get(ems.getProfileDetails);
 
-  app.route('/allemployees/:id')
+  app.route('/allemployees/:domainID')
     .get(ems.getAllEmployees);
 
   app.route('/updateemployee/:selectedEmpID')

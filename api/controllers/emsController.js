@@ -32,7 +32,7 @@ exports.getProfileDetails = async function(req,res){
 };
 
 exports.getAllEmployees = async function(req, res){
-    const domainID = req.params.id;
+    const domainID = req.params.domainID;
 
     await Employee.findOne({domain_id:domainID}, function(err, employee){
         if(err){
