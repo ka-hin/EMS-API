@@ -8,9 +8,12 @@ module.exports = function(app){
   app.route('/profile/:id')
     .get(ems.getProfileDetails);
 
-  app.route('/allemployees/:domainID')
+  app.route('/allEmployees/:domainID')
     .get(ems.getAllEmployees);
 
-  app.route('/updateemployee/:selectedEmpID')
+  app.route('/updateEmployee/:selectedEmpID')
     .patch(ems.updateEmployee);
+
+  app.route('/addEmployee')
+    .post(ems.addEmployee);
 };

@@ -69,3 +69,14 @@ exports.updateEmployee = async function(req, res){
     let changes = await Employee.findOneAndUpdate({domain_id: selectedEmpID}, update,{new:true});
     res.send(changes);
 };
+
+exports.addEmployee = async function(req, res){
+    var new_employee = new Employee(req.body);
+
+    await new_employee.save(function(err, employee){
+        if(err){
+            res.send(err);
+        }
+        res.json(employee);
+    });
+};
