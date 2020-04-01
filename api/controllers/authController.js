@@ -7,8 +7,9 @@ exports.getLoginDetails = async function(req,res){
     const pwd = req.params.pass;
 
     await Employee.findOne({domain_id : LoginID, password : md5(pwd), activated: true }, 'role -_id' , function(err, employee){
-        if(err)
+        if(err){
             res.send(err);
+        }
         res.json(employee);
     });
 
