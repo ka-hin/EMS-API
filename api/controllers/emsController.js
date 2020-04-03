@@ -9,7 +9,7 @@ exports.getProfileDetails = async function(req,res){
     const ProfileID = req.params.id;
     await Employee.findOne({domain_id:ProfileID},"-_id")
         .populate("schedule","-_id")
-        .populate("department","-_id")
+        .populate({path: "department",select: "-_id", populate: {path:"department_head", select:"name"}})
         .then(function(employee){
             res.json(employee);
         }).catch(function(err){
@@ -65,7 +65,7 @@ exports.addEmployee = async function(req, res){
 };
 
 exports.getAllDepartments = async function(req, res){
-    await Department.find({}).then(function(department){
+    await Department.find({}).populate('department_head', 'name').then(function(department){
         res.json(department);
     }).catch(function(err){
         res.json(err);

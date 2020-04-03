@@ -8,7 +8,8 @@ var DepartmentSchema = new Schema({
     type: String
   },
   department_head:{
-    type: String
+    type: Schema.Types.ObjectId,
+    ref: 'employee'
   },
   level:{
     type: String
