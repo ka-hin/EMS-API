@@ -16,4 +16,7 @@ module.exports = function(app){
 
   app.route('/addEmployee')
     .post(ems.addEmployee);
+
+  app.route('/alldepartments')
+    .get(ems.getAllDepartments);
 };

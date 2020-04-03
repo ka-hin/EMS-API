@@ -63,3 +63,11 @@ exports.addEmployee = async function(req, res){
         res.json(employee);
     });
 };
+
+exports.getAllDepartments = async function(req, res){
+    await Department.find({}).then(function(department){
+        res.json(department);
+    }).catch(function(err){
+        res.json(err);
+    });
+};
