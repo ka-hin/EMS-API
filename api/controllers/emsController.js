@@ -71,3 +71,11 @@ exports.getAllDepartments = async function(req, res){
         res.json(err);
     });
 };
+
+exports.getAllSchedules = async function(req, res){
+    await Schedule.find({}).then(function(schedule){
+        res.json(schedule);
+    }).catch(function(err){
+        res.json(err);
+    });
+};

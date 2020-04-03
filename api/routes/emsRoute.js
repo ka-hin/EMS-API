@@ -19,4 +19,7 @@ module.exports = function(app){
 
   app.route('/alldepartments')
     .get(ems.getAllDepartments);
+
+  app.route('/allschedules')
+    .get(ems.getAllSchedules);
 };
