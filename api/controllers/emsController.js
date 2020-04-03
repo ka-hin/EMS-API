@@ -7,31 +7,14 @@ var Period = mongoose.model('period');
 
 exports.getProfileDetails = async function(req,res){
     const ProfileID = req.params.id;
-    var scheduleID;
-    var departmentID;
-    var profile;
-    
-    await Employee.findOne({domain_id:ProfileID},'-_id', function(err,employee){
-        if(err){
-            res.send(err);  
-        }
-        scheduleID = employee.schedule_id;
-        departmentID = employee.department_id;
-        profile = employee;
-        Schedule.findOne({schedule_id : scheduleID},'-_id', function(err,schedule){
-            if(err){
-                res.send(err);
-            }
-            profile.schedule_id = schedule;
-            Department.findOne({department_id: departmentID},'-_id', function(err, department){
-                if(err){
-                    res.send(err);
-                }
-                profile.department_id = department;
-                res.send(profile);
-            });
+    await Employee.findOne({domain_id:ProfileID},"-_id")
+        .populate("schedule","-_id")
+        .populate("department","-_id")
+        .then(function(employee){
+            res.json(employee);
+        }).catch(function(err){
+            res.json(err);
         });
-    });
 };
 
 exports.getAllEmployees = async function(req, res){

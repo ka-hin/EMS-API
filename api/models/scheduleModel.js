@@ -4,7 +4,7 @@ var Schema = mongoose.Schema;
 
 
 var ScheduleSchema = new Schema({
-  schedule_id: {
+  schedule_name: {
     type: String
   },
   days_of_work: {

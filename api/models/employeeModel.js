@@ -26,11 +26,13 @@ var EmployeeSchema = new Schema({
   email:{
     type: String
   },
-  schedule_id:{
-      type: String
+  schedule:{
+      type: Schema.Types.ObjectId,
+      ref: 'schedule'
   },
-  department_id:{
-      type: String
+  department:{
+      type: Schema.Types.ObjectId,
+      ref: 'department'
   },
   role:{
       type: String,
