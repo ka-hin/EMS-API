@@ -26,20 +26,24 @@ exports.getAllEmployees = async function(req, res){
         }
 
         if(employee.role === "Admin"){
-            Employee.find({domain_id:{$ne:domainID}}, "-_id domain_id name role department_id activated",function(err,employee){
-                if(err){
-                    res.send(err);
-                }
-                res.send(employee);
+            Employee.find({domain_id:{$ne:domainID}}, "-_id domain_id name role department activated")
+            .populate("schedule","-_id schedule_name")
+            .populate("department","-_id department_name")
+            .then(function(employee){
+                res.json(employee);
+            }).catch(function(err){
+                res.json(err);
             });
         }
 
         if(employee.role === "Manager"){
-            Employee.find({department:employee.department, domain_id:{$ne:domainID},activated: true},'-_id -password',function(err,employee){
-                if(err){
-                    res.send(err);
-                }
-                res.send(employee);
+            Employee.find({department:employee.department, domain_id:{$ne:domainID},activated: true},'-_id -password')
+            .populate("schedule","-_id schedule_name")
+            .populate("department","-_id department_name")
+            .then(function(employee){
+                res.json(employee);
+            }).catch(function(err){
+                res.json(err);
             });
         }
         
