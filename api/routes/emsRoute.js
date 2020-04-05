@@ -7,4 +7,19 @@ module.exports = function(app){
 
   app.route('/profile/:id')
     .get(ems.getProfileDetails);
+
+  app.route('/allEmployees/:domainID')
+    .get(ems.getAllEmployees);
+
+  app.route('/updateEmployee/:selectedEmpID')
+    .patch(ems.updateEmployee);
+
+  app.route('/addEmployee')
+    .post(ems.addEmployee);
+
+  app.route('/alldepartments')
+    .get(ems.getAllDepartments);
+
+  app.route('/allschedules')
+    .get(ems.getAllSchedules);
 };

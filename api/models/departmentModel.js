@@ -4,14 +4,15 @@ var Schema = mongoose.Schema;
 
 
 var DepartmentSchema = new Schema({
-  department_id: {
-    type: String
-  },
   department_name: {
     type: String
   },
   department_head:{
-      type: String
+    type: Schema.Types.ObjectId,
+    ref: 'employee'
+  },
+  level:{
+    type: String
   }
 });
 
