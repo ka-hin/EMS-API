@@ -17,7 +17,9 @@ var express = require('express'),
   bodyParser = require("body-parser");
 
 mongoose.Promise=global.Promise;
-mongoose.connect('mongodb+srv://freeuser:freeuser@cluster0-wvlrg.mongodb.net/EMS');
+mongoose.connect('mongodb+srv://freeuser:freeuser@cluster0-wvlrg.mongodb.net/EMS').catch(err => {
+  console.log(err);
+});
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended:false}));

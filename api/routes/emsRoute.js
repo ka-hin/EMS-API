@@ -8,18 +8,18 @@ module.exports = function(app){
   app.route('/profile/:id')
     .get(ems.getProfileDetails);
 
-  app.route('/allEmployees/:domainID')
+  app.route('/employee/allEmployees/:domainID')
     .get(ems.getAllEmployees);
 
-  app.route('/updateEmployee/:selectedEmpID')
+  app.route('/employee/updateEmployee/:selectedEmpID')
     .patch(ems.updateEmployee);
 
-  app.route('/addEmployee')
+  app.route('/employee/addEmployee')
     .post(ems.addEmployee);
 
-  app.route('/alldepartments')
+  app.route('/department/alldepartments')
     .get(ems.getAllDepartments);
 
-  app.route('/allschedules')
+  app.route('/schedule/allschedules')
     .get(ems.getAllSchedules);
 };

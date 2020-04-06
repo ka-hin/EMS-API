@@ -2,8 +2,6 @@ var mongoose = require('mongoose');
 var Employee = mongoose.model('employee');
 var Department = mongoose.model('department');
 var Schedule = mongoose.model('schedule');
-var Timesheet = mongoose.model('timesheet');
-var Period = mongoose.model('period');
 
 exports.getProfileDetails = async function(req,res){
     const ProfileID = req.params.id;
