@@ -55,6 +55,17 @@ exports.updateEmployee = async function(req, res){
     res.send(changes);
 };
 
+exports.checkDuplicate = async function(req, res){
+    const dupKey = req.params.key;
+
+    await Employee.findOne({$or:[{domain_id: dupKey},{email: dupKey},{ic: dupKey}]}, "-_id domain_id email ic")
+    .then(function(employee){
+        res.json(employee);
+    }).catch(function(err){
+        res.json(err);
+    });
+};
+
 exports.addEmployee = async function(req, res){
     emp_Obj = req.body;
     emp_Obj["password"] = "6ad14ba9986e3615423dfca256d04e3f";

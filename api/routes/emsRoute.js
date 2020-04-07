@@ -14,6 +14,9 @@ module.exports = function(app){
   app.route('/employee/updateEmployee/:selectedEmpID')
     .patch(ems.updateEmployee);
 
+  app.route('/employee/checkduplicate/:key')
+    .get(ems.checkDuplicate);
+
   app.route('/employee/addEmployee')
     .post(ems.addEmployee);
 
