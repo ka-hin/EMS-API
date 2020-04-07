@@ -56,7 +56,11 @@ exports.updateEmployee = async function(req, res){
 };
 
 exports.addEmployee = async function(req, res){
-    var new_employee = new Employee(req.body);
+    emp_Obj = req.body;
+    emp_Obj["password"] = "6ad14ba9986e3615423dfca256d04e3f";
+    emp_Obj["activated"] = true;
+
+    var new_employee = new Employee(emp_Obj);
 
     await new_employee.save(function(err, employee){
         if(err){
