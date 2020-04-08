@@ -2,6 +2,7 @@ var mongoose = require('mongoose');
 var Employee = mongoose.model('employee');
 var Department = mongoose.model('department');
 var Schedule = mongoose.model('schedule');
+var md5 = require('md5');
 
 exports.getProfileDetails = async function(req,res){
     const ProfileID = req.params.id;
@@ -68,7 +69,18 @@ exports.checkDuplicate = async function(req, res){
 
 exports.addEmployee = async function(req, res){
     emp_Obj = req.body;
-    emp_Obj["password"] = "6ad14ba9986e3615423dfca256d04e3f";
+    var pwd = emp_Obj.name.split(" ");
+    pwd = pwd[pwd.length - 1];
+
+    let date_ob = new Date();
+
+    let date = ("0" + date_ob.getDate()).slice(-2);
+    let month = ("0" + (date_ob.getMonth() + 1)).slice(-2);
+    let year = date_ob.getFullYear();
+    
+    // pwd = pwd + date + month + year;
+
+    emp_Obj["password"] = md5(pwd + "123");//to be changed
     emp_Obj["activated"] = true;
 
     var new_employee = new Employee(emp_Obj);
