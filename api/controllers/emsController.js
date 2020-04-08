@@ -11,8 +11,9 @@ exports.getProfileDetails = async function(req,res){
         .populate({path: "department",select: "-_id", populate: {path:"department_head", select:"name"}})
         .then(function(employee){
             res.json(employee);
-        }).catch(function(err){
-            res.json(err);
+        }).catch(function(){
+            res.status(500);
+            res.send('There is a problem with the record');
         });
 };
 
@@ -21,7 +22,8 @@ exports.getAllEmployees = async function(req, res){
 
     await Employee.findOne({domain_id:domainID}, function(err, employee){
         if(err){
-            res.send(err);
+            res.status(500);
+            res.send('There is a problem with the record');
         }
 
         if(employee.role === "Admin"){
@@ -30,8 +32,9 @@ exports.getAllEmployees = async function(req, res){
             .populate("department","-_id department_name")
             .then(function(employee){
                 res.json(employee);
-            }).catch(function(err){
-                res.json(err);
+            }).catch(function(){
+                res.status(500);
+                res.send('There is a problem with the record');
             });
         }
 
@@ -41,8 +44,9 @@ exports.getAllEmployees = async function(req, res){
             .populate("department","-_id department_name")
             .then(function(employee){
                 res.json(employee);
-            }).catch(function(err){
-                res.json(err);
+            }).catch(function(){
+                res.status(500);
+                res.send('There is a problem with the record');
             });
         }
         
@@ -62,8 +66,9 @@ exports.checkDuplicate = async function(req, res){
     await Employee.findOne({$or:[{domain_id: dupKey},{email: dupKey},{ic: dupKey}]}, "-_id domain_id email ic")
     .then(function(employee){
         res.json(employee);
-    }).catch(function(err){
-        res.json(err);
+    }).catch(function(){
+        res.status(500);
+        res.send('There is a problem with the record');
     });
 };
 
@@ -87,7 +92,8 @@ exports.addEmployee = async function(req, res){
 
     await new_employee.save(function(err, employee){
         if(err){
-            res.send(err);
+            res.status(500);
+            res.send('There is a problem with the record');
         }
         res.json(employee);
     });
@@ -96,15 +102,17 @@ exports.addEmployee = async function(req, res){
 exports.getAllDepartments = async function(req, res){
     await Department.find({}).populate('department_head', 'name').then(function(department){
         res.json(department);
-    }).catch(function(err){
-        res.json(err);
+    }).catch(function(){
+        res.status(500);
+        res.send('There is a problem with the record');
     });
 };
 
 exports.getAllSchedules = async function(req, res){
     await Schedule.find({}).then(function(schedule){
         res.json(schedule);
-    }).catch(function(err){
-        res.json(err);
+    }).catch(function(){
+        res.status(500);
+        res.send('There is a problem with the record');
     });
 };

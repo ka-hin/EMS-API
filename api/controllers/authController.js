@@ -8,7 +8,8 @@ exports.getLoginDetails = async function(req,res){
 
     await Employee.findOne({domain_id : LoginID, password : md5(pwd), activated: true }, 'role -_id' , function(err, employee){
         if(err){
-            res.send(err);
+            res.status(500);
+            res.send('There is a problem with the record');
         }
         res.json(employee);
     });
