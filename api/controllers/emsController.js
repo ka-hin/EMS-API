@@ -24,7 +24,7 @@ exports.getAllEmployees = async function(req, res){
         }
 
         if(employee.role === "Admin"){
-            Employee.find({domain_id:{$ne:domainID}}, "-_id domain_id name role department activated")
+            Employee.find({domain_id:{$ne:domainID}}, "-_id -password")
             .populate("schedule","-_id schedule_name")
             .populate("department","-_id department_name")
             .then(function(employee){
