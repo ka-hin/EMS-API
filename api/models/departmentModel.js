@@ -5,11 +5,13 @@ var Schema = mongoose.Schema;
 
 var DepartmentSchema = new Schema({
   department_name: {
-    type: String
+    type: String,
+    required: true
   },
   department_head:{
     type: Schema.Types.ObjectId,
-    ref: 'employee'
+    ref: 'employee',
+    required: false
   },
   level:{
     type: String
