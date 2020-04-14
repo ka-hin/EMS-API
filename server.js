@@ -14,6 +14,7 @@ var express = require('express'),
   Schedule = require('./api/models/scheduleModel'),
   Timesheet = require('./api/models/timesheetModel'),
   Period = require('./api/models/periodModel'),
+  TimesheetApproval = require('./api/models/timesheetApprovalModel'),
   bodyParser = require("body-parser");
 
 mongoose.Promise=global.Promise;
