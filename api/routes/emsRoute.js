@@ -1,6 +1,7 @@
 module.exports = function(app){
   var ems = require('../controllers/emsController');
   var auth = require('../controllers/authController');
+  var clock = require('../controllers/clockController');
 
   app.route('/login/:id/:pass')
     .get(auth.getLoginDetails);
@@ -25,4 +26,9 @@ module.exports = function(app){
 
   app.route('/schedule/allschedules')
     .get(ems.getAllSchedules);
+
+  //Clock In/Out
+
+  app.route('/clock/createPeriods/:year')
+    .post(clock.createPeriods);
 };
