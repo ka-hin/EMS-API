@@ -46,6 +46,9 @@ var TimesheetSchema = new Schema({
     required: true
  }
   
+}, 
+{
+  versionKey: false
 });
 
 module.exports = mongoose.model('timesheet', TimesheetSchema, 'timesheets');

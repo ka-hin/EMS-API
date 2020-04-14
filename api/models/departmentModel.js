@@ -16,6 +16,9 @@ var DepartmentSchema = new Schema({
   level:{
     type: String
   }
+}, 
+{
+  versionKey: false
 });
 
 module.exports = mongoose.model('department', DepartmentSchema, 'departments');

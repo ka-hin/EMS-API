@@ -26,6 +26,9 @@ var TimesheetApprovalSchema = new Schema({
       ref: "employee",
       required: true
   }
+}, 
+{
+  versionKey: false
 });
 
 module.exports = mongoose.model('timesheet_approval', TimesheetApprovalSchema, 'timesheet_approvals');

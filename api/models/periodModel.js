@@ -20,6 +20,9 @@ var PeriodSchema = new Schema({
       type: String,
       required: true
   }
+}, 
+{
+  versionKey: false
 });
 
 module.exports = mongoose.model('period', PeriodSchema, 'periods');
