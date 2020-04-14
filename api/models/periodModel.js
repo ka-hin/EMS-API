@@ -4,17 +4,21 @@ var Schema = mongoose.Schema;
 
 
 var PeriodSchema = new Schema({
-  period_id: {
-    type: String
+  period_number: {
+    type: String,
+    required: true
   },
   date_start: {
-    type: String
+    type: String,
+    required: true
   },
   date_end:{
-      type: String
+      type: String,
+      required: true
   },
   year: {
-      type: String
+      type: String,
+      required: true
   }
 });
 
