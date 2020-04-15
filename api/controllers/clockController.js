@@ -107,16 +107,7 @@ exports.clockIn = async function(req,res){
     var year = req.params.year;
     var period = (Number(dateIn.substr(3,2))-1).toString();
 
-    await createPeriods(year,res)
-        .then(function(){
-            createTimesheet(domainID,period,year,res);
-        })
-        .then(function(){
-            clockIn(domainID,dateIn, timeIn, year, res);
-        })
-        .catch(function(err){
-            console.log(err)
-        });;
-    
-    
+    const resolvePeriod = await createPeriods(year,res);
+    const resolveTimeSheet = await createTimesheet(domainID,period,year,res);
+    const resolveClockIn = await clockIn(domainID,dateIn, timeIn, year, res);
 };
