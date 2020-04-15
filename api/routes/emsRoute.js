@@ -31,4 +31,7 @@ module.exports = function(app){
 
   app.route('/clock/createPeriods/:year')
     .post(clock.createPeriods);
+
+  app.route('/clock/createTimesheet/:domainID/:period/:year')
+    .get(clock.createTimesheet);
 };

@@ -5,8 +5,7 @@ var Schema = mongoose.Schema;
 
 var TimesheetSchema = new Schema({
   domain_id: {
-      type: Schema.Types.ObjectId,
-      ref: 'employee',
+      type: String,
       required: true
   },
   date_in: {
@@ -15,11 +14,11 @@ var TimesheetSchema = new Schema({
   },
   time_in: {
       type: String,
-      required: false
+      required: true
   },
   time_out: {
       type: String,
-      required: false
+      required: true
   },
   date_out: {
     type: String,
@@ -44,7 +43,11 @@ var TimesheetSchema = new Schema({
   late: {
     type: Number,
     required: true
- }
+  },
+  remarks: {
+    type: String,
+    required: false
+  }
   
 }, 
 {
