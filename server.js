@@ -21,6 +21,7 @@ mongoose.Promise=global.Promise;
 mongoose.connect('mongodb+srv://freeuser:freeuser@cluster0-wvlrg.mongodb.net/EMS').catch(err => {
   console.log(err);
 });
+mongoose.set('useFindAndModify', false);
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended:false}));
