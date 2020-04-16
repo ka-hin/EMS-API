@@ -180,6 +180,14 @@ async function calcOTnUT(domainID, dateIn, dateOut, timeOut, year){
     }
 }
 
+async function clockOut(domainID, dateIn, dateOut, timeOut, year){
+    var updatedDateOut = null;
+    if(dateIn !== dateOut){
+        updatedDateOut = dateOut;
+    }
+    return await Timesheet.findOneAndUpdate({"domain_id": domainID, "date_in": dateIn, "year":year},{"time_out":timeOut, "date_out": updatedDateOut},{new:true});
+}
+
 exports.clockOut = async function(req, res){
     var domainID = req.params.domainID;
     var dateIn = req.params.dateIn;
@@ -187,6 +195,7 @@ exports.clockOut = async function(req, res){
     var timeOut = req.params.timeOut;
     var year = req.params.year;
 
+    await clockOut(domainID, dateIn, dateOut, timeOut, year);
     await calcOTnUT(domainID, dateIn, dateOut, timeOut, year);
     res.send("Clocked Out");
 };
