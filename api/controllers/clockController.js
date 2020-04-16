@@ -154,3 +154,39 @@ exports.clockIn = async function(req,res){
         res.send('Clocked In');
     });  
 };
+
+async function calcOTnUT(domainID, dateIn, dateOut, timeOut, year){
+    const employee = await Employee.findOne({domain_id:domainID})
+        .populate("schedule","-_id");
+
+    var startTime = employee.schedule.start_time;
+    var endTime = employee.schedule.end_time;
+    var workingHours = (Number(endTime.substr(0,2))*60 + Number(endTime.substr(2,2))) - (Number(startTime.substr(0,2))*60 + Number(startTime.substr(2,2)));
+    
+    const timesheet = await Timesheet.findOne({"domain_id": domainID, "date_in": dateIn, "year":year});
+    var timeIn = timesheet.time_in;
+    
+    var d1 = new Date(Number(year), (Number(dateIn.substr(3,2))-1), Number(dateIn.substr(0,2)),(Number(timeIn.substr(0,2)))+8, Number(timeIn.substr(2,2)));
+    var d2 = new Date(Number(year), (Number(dateOut.substr(3,2))-1), Number(dateOut.substr(0,2)),(Number(timeOut.substr(0,2)))+8, Number(timeOut.substr(2,2)));
+
+    var workedHours = Math.abs(d2 - d1) / (60*1000);
+    
+    var diffHrs = (workedHours - workingHours) / 60;
+    
+    if(diffHrs > 0){
+        return await Timesheet.findOneAndUpdate({"domain_id": domainID, "date_in": dateIn, "year":year}, {"ot": diffHrs, "ut":0}, {new:true});
+    }else{
+        return await Timesheet.findOneAndUpdate({"domain_id": domainID, "date_in": dateIn, "year":year}, {"ot": 0, "ut": diffHrs*-1}, {new:true});
+    }
+}
+
+exports.clockOut = async function(req, res){
+    var domainID = req.params.domainID;
+    var dateIn = req.params.dateIn;
+    var dateOut = req.params.dateOut;
+    var timeOut = req.params.timeOut;
+    var year = req.params.year;
+
+    await calcOTnUT(domainID, dateIn, dateOut, timeOut, year);
+    res.send("Clocked Out");
+};

@@ -30,5 +30,8 @@ module.exports = function(app){
   //Clock In/Out
 
   app.route('/clock/clockIn/:domainID/:dateIn/:timeIn/:year')
-    .patch(clock.clockIn);
+    .get(clock.clockIn);
+
+  app.route('/clock/clockOut/:domainID/:dateIn/:dateOut/:timeOut/:year')
+    .get(clock.clockOut);
 };
