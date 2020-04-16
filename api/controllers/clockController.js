@@ -114,6 +114,17 @@ async function clockIn(domainID, dateIn, timeIn, year){
     return await Timesheet.findOneAndUpdate({"domain_id": domainID, "date_in": dateIn, "year":year},{"time_in":timeIn},{new:true});
 }
 
+async function calcLateHrs(domainID, dateIn, timeIn, year){
+    const employee = await Employee.findOne({domain_id:domainID})
+        .populate("schedule","-_id");
+
+    var startTime = employee.schedule.start_time;
+    var lateHrs = ((Number(timeIn.substr(0,2))*60 + Number(timeIn.substr(2,2))) - (Number(startTime.substr(0,2))*60 + Number(startTime.substr(2,2))))/60;
+    if(lateHrs > 0){
+        return await Timesheet.findOneAndUpdate({"domain_id": domainID, "date_in": dateIn, "year":year},{"late":lateHrs},{new:true});
+    }
+}
+
 exports.clockIn = async function(req,res){
     var domainID = req.params.domainID;
     var dateIn = req.params.dateIn;
@@ -138,6 +149,7 @@ exports.clockIn = async function(req,res){
         } else {
             await clockIn(domainID,dateIn, timeIn, year);
         }
+        await calcLateHrs(domainID, dateIn, timeIn, year);
 
         res.send('Clocked In');
     });  
