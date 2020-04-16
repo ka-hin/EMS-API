@@ -1,6 +1,8 @@
 var mongoose = require('mongoose');
 var Period = mongoose.model('period');
 var Timesheet = mongoose.model('timesheet');
+var Employee = mongoose.model('employee');
+var TimesheetApproval = mongoose.model('timesheet_approval');
 
 async function createPeriods(year,res){
 
@@ -24,7 +26,7 @@ async function createPeriods(year,res){
                 }
                 
                 var new_period = new Period(periodObj);
-                new_period.save(function(err,period){
+                new_period.save(function(err){
                     if(err){
                         res.status(500);
                         res.send('There is a problem with the record');
@@ -35,7 +37,7 @@ async function createPeriods(year,res){
     });
 };
 
-async function createTimesheet(domainID, periodNumber, year,res) {
+async function createTimesheet(domainID, periodNumber, year) {
 
     // Check if there is a plotted timesheet for specified user and period.
     const timesheet = await Timesheet.findOne({"domain_id" : domainID, "period_number": periodNumber, "year": year});
@@ -85,7 +87,30 @@ async function createTimesheet(domainID, periodNumber, year,res) {
     return [];
 };
 
-async function clockIn(domainID, dateIn, timeIn, year, res){
+async function createTimesheetApproval(period,year,domainID){
+    const employee = await Employee.findOne({domain_id: domainID})
+        .populate({path: "department", populate: {path:"department_head", select:"domain_id"}});
+
+    var isApproved = false;
+    if(domainID===employee.department.department_head.domain_id){
+        isApproved = true;
+    }
+    const timesheetapproval = await TimesheetApproval.findOne({employee_id: domainID, period_number: period, year: year});
+
+    if(!timesheetapproval){
+        const timesheetApprovalObj = {
+            "period_number":period,
+            "year":year,
+            "is_approved":isApproved,
+            "employee_id": domainID,
+            "manager_id": employee.department.department_head.domain_id
+        }
+        const new_timesheetApproval = new TimesheetApproval(timesheetApprovalObj);
+        new_timesheetApproval.save();
+    }
+}
+
+async function clockIn(domainID, dateIn, timeIn, year){
     return await Timesheet.findOneAndUpdate({"domain_id": domainID, "date_in": dateIn, "year":year},{"time_in":timeIn},{new:true});
 }
 
@@ -97,12 +122,11 @@ exports.clockIn = async function(req,res){
     var period = (Number(dateIn.substr(3,2))-1).toString();
 
     const resolvePeriod = await createPeriods(year,res);
-    await createTimesheet(domainID,period,year,res).then( async (doc) => {
+    await createTimesheet(domainID,period,year).then( async (doc) => {
 
         if(doc.length) {
             doc.map( doc => {
                 if(doc.date_in === dateIn) {
-                    console.log(doc);
                     doc.time_in = timeIn;
                 }
     
@@ -110,8 +134,9 @@ exports.clockIn = async function(req,res){
             });
 
             await Timesheet.insertMany(doc);
+            await createTimesheetApproval(period, year, domainID);
         } else {
-            await clockIn(domainID,dateIn, timeIn, year, res);
+            await clockIn(domainID,dateIn, timeIn, year);
         }
 
         res.send('Clocked In');

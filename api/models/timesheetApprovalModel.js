@@ -17,13 +17,11 @@ var TimesheetApprovalSchema = new Schema({
       required: true
   },
   employee_id: {
-      type: Schema.Types.ObjectId,
-      ref: "employee",
+      type: String,
       required: true
   },
   manager_id: {
-      type: Schema.Types.ObjectId,
-      ref: "employee",
+      type: String,
       required: true
   }
 }, 
