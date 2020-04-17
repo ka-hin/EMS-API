@@ -151,7 +151,7 @@ exports.clockIn = async function(req,res){
         }
         await calcLateHrs(domainID, dateIn, timeIn, year);
 
-        res.send('Clocked In');
+        res.json({clocked_in : true});
     });  
 };
 
@@ -197,5 +197,5 @@ exports.clockOut = async function(req, res){
 
     await clockOut(domainID, dateIn, dateOut, timeOut, year);
     await calcOTnUT(domainID, dateIn, dateOut, timeOut, year);
-    res.send("Clocked Out");
+    res.json({clocked_out: true});
 };
