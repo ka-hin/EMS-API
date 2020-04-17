@@ -44,6 +44,9 @@ module.exports = function(app){
   app.route('/timesheet/availableTimesheet/:domainID')
     .get(timesheet.availableTimesheet);
 
+  app.route('/timesheet/approvalEmail/:domainID/:period/:year')
+    .get(timesheet.approvalEmail);
+
   app.route('/timesheet/approveTimesheet/:domainID/:period/:year')
     .patch(timesheet.approveTimesheet);
 };
