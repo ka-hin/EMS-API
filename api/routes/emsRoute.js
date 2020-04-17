@@ -2,6 +2,7 @@ module.exports = function(app){
   var ems = require('../controllers/emsController');
   var auth = require('../controllers/authController');
   var clock = require('../controllers/clockController');
+  var timesheet = require('../controllers/timesheetController');
 
   app.route('/login/:id/:pass')
     .get(auth.getLoginDetails);
@@ -34,4 +35,9 @@ module.exports = function(app){
 
   app.route('/clock/clockOut/:domainID/:dateIn/:dateOut/:timeOut/:year')
     .get(clock.clockOut);
+
+  //Timesheet
+
+  app.route('/timesheet/viewTimesheet/:domainID/:month/:year')
+    .get(timesheet.viewTimesheet);
 };
