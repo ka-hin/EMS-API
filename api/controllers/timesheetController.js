@@ -14,3 +14,23 @@ exports.viewTimesheet = async function(req, res){
             res.send("There is a problem with the record");
         });
 }
+
+exports.availableTimesheet = async function(req, res){
+    var domainID = req.params.domainID;
+    
+    const uniquePeriodandYear = await Timesheet.aggregate([
+        {
+            $match:
+            {
+                domain_id: domainID
+            }
+        },
+        {
+            $group:
+            {
+                _id: {period_number: "$period_number", year: "$year"}
+            }
+        }
+    ])
+    res.json(uniquePeriodandYear);  
+}

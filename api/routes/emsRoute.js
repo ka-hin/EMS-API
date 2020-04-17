@@ -40,4 +40,7 @@ module.exports = function(app){
 
   app.route('/timesheet/viewTimesheet/:domainID/:month/:year')
     .get(timesheet.viewTimesheet);
+
+  app.route('/timesheet/availableTimesheet/:domainID')
+    .get(timesheet.availableTimesheet);
 };
