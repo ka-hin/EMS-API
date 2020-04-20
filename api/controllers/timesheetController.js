@@ -21,21 +21,8 @@ exports.viewTimesheet = async function(req, res){
 exports.availableTimesheet = async function(req, res){
     var domainID = req.params.domainID;
     
-    const uniquePeriodandYear = await Timesheet.aggregate([
-        {
-            $match:
-            {
-                domain_id: domainID
-            }
-        },
-        {
-            $group:
-            {
-                _id: {period_number: "$period_number", year: "$year"}
-            }
-        }
-    ])
-    res.json(uniquePeriodandYear);  
+    const availableTimesheet = await TimesheetApproval.find({"employee_id": domainID}, "-_id -employee_id -manager_id");
+    res.json(availableTimesheet);  
 };
 
 exports.approvalEmail = async function(req,res){
