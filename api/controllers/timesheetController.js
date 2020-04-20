@@ -62,7 +62,7 @@ exports.approvalEmail = async function(req,res){
             if (error) {
               res.send(error);
             } else {
-              res.send('Email sent: ' + info.response);
+              res.json('Email sent: ' + info.response);
             }
           });
     }
