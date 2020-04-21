@@ -30,11 +30,11 @@ module.exports = function(app){
 
   //Clock In/Out
 
-  app.route('/clock/clockIn/:domainID/:dateIn/:timeIn/:year')
-    .get(clock.clockIn);
+  app.route('/clock/clockIn')
+    .patch(clock.clockIn);
 
-  app.route('/clock/clockOut/:domainID/:dateIn/:dateOut/:timeOut/:year')
-    .get(clock.clockOut);
+  app.route('/clock/clockOut')
+    .patch(clock.clockOut);
 
   //Timesheet
 
@@ -44,8 +44,8 @@ module.exports = function(app){
   app.route('/timesheet/availableTimesheet/:domainID')
     .get(timesheet.availableTimesheet);
 
-  app.route('/timesheet/approvalEmail/:domainID/:period/:year')
-    .get(timesheet.approvalEmail);
+  app.route('/timesheet/approvalEmail')
+    .post(timesheet.approvalEmail);
 
   app.route('/timesheet/approveTimesheet/:domainID/:period/:year')
     .patch(timesheet.approveTimesheet);

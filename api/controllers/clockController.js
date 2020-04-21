@@ -14,18 +14,18 @@ async function createPeriods(year,res){
 
         if(!period){
             for(var i = 0; i<12;i++){
-                var d = new Date(year, i + 1, 0,+8);
+                let d = new Date(year, i + 1, 0,+8);
                 let date = ("0" + d.getDate()).slice(-2);
                 let month = ("0" + (d.getMonth() + 1)).slice(-2);
         
-                var periodObj = {
+                const periodObj = {
                     "period_number" : i.toString(),
                     "date_start" : "01-"+month,
                     "date_end" : date+'-'+month,
                     "year" : year.toString()
                 }
                 
-                var new_period = new Period(periodObj);
+                const new_period = new Period(periodObj);
                 new_period.save(function(err){
                     if(err){
                         res.status(500);
@@ -55,9 +55,9 @@ async function createTimesheet(domainID, periodNumber, year) {
             const new_timesheet = [];
 
             for(var i = startDate; i <= endDate ; i++){
-                var dateIn = ("0"+ i).slice(-2)+"-"+("0"+(Number(periodNumber)+1)).slice(-2);
-                var d = new Date(Number(year), Number(periodNumber), i,+8);
-                var day = null;
+                let dateIn = ("0"+ i).slice(-2)+"-"+("0"+(Number(periodNumber)+1)).slice(-2);
+                let d = new Date(Number(year), Number(periodNumber), i,+8);
+                let day = null;
 
                 if(d.getDay() === 0 || d.getDay() === 6){
                     day = "Weekend";
@@ -91,7 +91,7 @@ async function createTimesheetApproval(period,year,domainID){
     const employee = await Employee.findOne({domain_id: domainID})
         .populate({path: "department", populate: {path:"department_head", select:"domain_id"}});
 
-    var isApproved = false;
+    let isApproved = false;
     if(domainID===employee.department.department_head.domain_id){
         isApproved = true;
     }
@@ -118,19 +118,21 @@ async function calcLateHrs(domainID, dateIn, timeIn, year){
     const employee = await Employee.findOne({domain_id:domainID})
         .populate("schedule","-_id");
 
-    var startTime = employee.schedule.start_time;
-    var lateHrs = ((Number(timeIn.substr(0,2))*60 + Number(timeIn.substr(2,2))) - (Number(startTime.substr(0,2))*60 + Number(startTime.substr(2,2))))/60;
+    const startTime = employee.schedule.start_time;
+    const lateHrs = ((Number(timeIn.substr(0,2))*60 + Number(timeIn.substr(2,2))) - (Number(startTime.substr(0,2))*60 + Number(startTime.substr(2,2))))/60;
     if(lateHrs > 0){
         return await Timesheet.findOneAndUpdate({"domain_id": domainID, "date_in": dateIn, "year":year},{"late":lateHrs},{new:true});
     }
 }
 
 exports.clockIn = async function(req,res){
-    var domainID = req.params.domainID;
-    var dateIn = req.params.dateIn;
-    var timeIn = req.params.timeIn;
-    var year = req.params.year;
-    var period = (Number(dateIn.substr(3,2))-1).toString();
+    const body = req.body;
+
+    const domainID = body.domain_id;
+    const dateIn = body.date_in;
+    const timeIn = body.time_in;
+    const year = body.year;
+    const period = (Number(dateIn.substr(3,2))-1).toString();
 
     const resolvePeriod = await createPeriods(year,res);
     await createTimesheet(domainID,period,year).then( async (doc) => {
@@ -160,19 +162,19 @@ async function calcOTnUT(domainID, dateIn, dateOut, timeOut, year){
     const employee = await Employee.findOne({domain_id:domainID})
         .populate("schedule","-_id");
 
-    var startTime = employee.schedule.start_time;
-    var endTime = employee.schedule.end_time;
-    var workingHours = (Number(endTime.substr(0,2))*60 + Number(endTime.substr(2,2))) - (Number(startTime.substr(0,2))*60 + Number(startTime.substr(2,2)));
+    const startTime = employee.schedule.start_time;
+    const endTime = employee.schedule.end_time;
+    const workingHours = (Number(endTime.substr(0,2))*60 + Number(endTime.substr(2,2))) - (Number(startTime.substr(0,2))*60 + Number(startTime.substr(2,2)));
     
     const timesheet = await Timesheet.findOne({"domain_id": domainID, "date_in": dateIn, "year":year});
-    var timeIn = timesheet.time_in;
+    const timeIn = timesheet.time_in;
     
-    var d1 = new Date(Number(year), (Number(dateIn.substr(3,2))-1), Number(dateIn.substr(0,2)),(Number(timeIn.substr(0,2)))+8, Number(timeIn.substr(2,2)));
-    var d2 = new Date(Number(year), (Number(dateOut.substr(3,2))-1), Number(dateOut.substr(0,2)),(Number(timeOut.substr(0,2)))+8, Number(timeOut.substr(2,2)));
+    const d1 = new Date(Number(year), (Number(dateIn.substr(3,2))-1), Number(dateIn.substr(0,2)),(Number(timeIn.substr(0,2)))+8, Number(timeIn.substr(2,2)));
+    const d2 = new Date(Number(year), (Number(dateOut.substr(3,2))-1), Number(dateOut.substr(0,2)),(Number(timeOut.substr(0,2)))+8, Number(timeOut.substr(2,2)));
 
-    var workedHours = Math.abs(d2 - d1) / (60*1000);
+    const workedHours = Math.abs(d2 - d1) / (60*1000);
     
-    var diffHrs = (workedHours - workingHours) / 60;
+    const diffHrs = (workedHours - workingHours) / 60;
     
     if(diffHrs > 0){
         return await Timesheet.findOneAndUpdate({"domain_id": domainID, "date_in": dateIn, "year":year}, {"ot": diffHrs, "ut":0}, {new:true});
@@ -182,7 +184,7 @@ async function calcOTnUT(domainID, dateIn, dateOut, timeOut, year){
 }
 
 async function clockOut(domainID, dateIn, dateOut, timeOut, year){
-    var updatedDateOut = null;
+    let updatedDateOut = null;
     if(dateIn !== dateOut){
         updatedDateOut = dateOut;
     }
@@ -190,12 +192,14 @@ async function clockOut(domainID, dateIn, dateOut, timeOut, year){
 }
 
 exports.clockOut = async function(req, res){
-    var domainID = req.params.domainID;
-    var dateIn = req.params.dateIn;
-    var dateOut = req.params.dateOut;
-    var timeOut = req.params.timeOut;
-    var year = req.params.year;
-    var period = (Number(dateIn.substr(3,2))-1).toString();
+    const body = req.body;
+
+    const domainID = body.domain_id;
+    const dateIn = body.date_in;
+    const dateOut = body.date_out;
+    const timeOut = body.time_out;
+    const year = body.year;
+    const period = (Number(dateIn.substr(3,2))-1).toString();
 
     await clockOut(domainID, dateIn, dateOut, timeOut, year);
     await calcOTnUT(domainID, dateIn, dateOut, timeOut, year);

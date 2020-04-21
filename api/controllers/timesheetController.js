@@ -5,9 +5,9 @@ var TimesheetApproval = mongoose.model('timesheet_approval');
 var Employee = mongoose.model('employee');
 
 exports.viewTimesheet = async function(req, res){
-    var domainID = req.params.domainID;
-    var period = (Number(req.params.month)-1).toString();
-    var year = req.params.year;
+    const domainID = req.params.domainID;
+    const period = (Number(req.params.month)-1).toString();
+    const year = req.params.year;
 
     await Timesheet.find({"domain_id": domainID, "period_number": period, "year":year})
         .then(function(timesheet){
@@ -19,7 +19,7 @@ exports.viewTimesheet = async function(req, res){
 };
 
 exports.availableTimesheet = async function(req, res){
-    var domainID = req.params.domainID;
+    const domainID = req.params.domainID;
     
     await TimesheetApproval.find({"employee_id": domainID}, "-_id -employee_id -manager_id")
         .then(function(availableTimesheet){
@@ -32,9 +32,11 @@ exports.availableTimesheet = async function(req, res){
 };
 
 exports.approvalEmail = async function(req,res){
-    var domainID = req.params.domainID;
-    var period = req.params.period;
-    var year = req.params.year;
+    const body = req.body;
+
+    const domainID = body.domain_id;
+    const period = body.period;
+    const year = body.year;
 
     const timesheetapproval = await TimesheetApproval.findOne({"employee_id": domainID, "period_number": period, "year":year});
 
