@@ -21,8 +21,14 @@ exports.viewTimesheet = async function(req, res){
 exports.availableTimesheet = async function(req, res){
     var domainID = req.params.domainID;
     
-    const availableTimesheet = await TimesheetApproval.find({"employee_id": domainID}, "-_id -employee_id -manager_id");
-    res.json(availableTimesheet);  
+    await TimesheetApproval.find({"employee_id": domainID}, "-_id -employee_id -manager_id")
+        .then(function(availableTimesheet){
+            res.json(availableTimesheet); 
+        }).catch(function(){
+            res.status(500);
+            res.send("There is a problem with the record");
+        });
+     
 };
 
 exports.approvalEmail = async function(req,res){
