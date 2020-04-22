@@ -45,7 +45,7 @@ exports.approvalEmail = async function(req,res){
 
         const employee = await Employee.findOne({"domain_id": domainID});
 
-        const approvalLink = `localhost:4200/timesheet/approval/domainID=${domainID}&period=${period}&year=${year}`;
+        const approvalLink = `http://localhost:4200/timesheet-approval/${domainID}/${period}/${year}`;
 
         var transporter = nodemailer.createTransport({
             service: 'gmail',
