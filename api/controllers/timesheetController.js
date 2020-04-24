@@ -10,6 +10,7 @@ exports.viewTimesheet = async function(req, res){
     const year = req.params.year;
 
     await Timesheet.find({"domain_id": domainID, "period_number": period, "year":year})
+        .sort("date_in")
         .then(function(timesheet){
             res.json(timesheet);
         }).catch(function(){
