@@ -49,4 +49,7 @@ module.exports = function(app){
 
   app.route('/timesheet/approveTimesheet/:domainID/:period/:year')
     .patch(timesheet.approveTimesheet);
+
+  app.route('/timesheet/approvalStatus/:domainID')
+    .get(timesheet.approvalStatus);
 };

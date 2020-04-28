@@ -91,3 +91,16 @@ exports.approveTimesheet = async function(req, res){
             res.send("There is a problem with the record");
         })
 };
+
+exports.approvalStatus = async function(req, res){
+    const domainID = req.params.domainID;
+
+    const timesheetapproval = await TimesheetApproval.find({"manager_id":domainID, "employee_id":{$ne:domainID}}).lean();
+
+    for(let i = 0; i < timesheetapproval.length; i++){
+        const employee = await Employee.findOne({"domain_id":timesheetapproval[i].employee_id}, "-_id");
+        
+        timesheetapproval[i].employee = employee;
+    }
+    res.send(timesheetapproval);
+};
