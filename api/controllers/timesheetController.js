@@ -112,3 +112,19 @@ exports.approvalStatus = async function(req, res){
     }
     res.send(timesheetapproval);
 };
+
+exports.setEditableTimesheet = async function(req, res){
+    const changes = req.body;
+    let update = [];
+
+    for(let i = 0; i < changes.length; i++){
+        await Timesheet.findOneAndUpdate({"domain_id": changes[i].domain_id, "date_in":changes[i].date_in, "year": changes[i].year},{"edit_status":"Editable"},{new:true})
+            .then(function(timesheet){
+                update.push(timesheet);
+            }).catch(function(){
+                res.status(500);
+                res.send("There is a problem with the record");
+            })
+    }
+    res.json(update);
+};

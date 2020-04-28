@@ -52,4 +52,7 @@ module.exports = function(app){
 
   app.route('/timesheet/approvalStatus/:domainID')
     .get(timesheet.approvalStatus);
+
+  app.route('/timesheet/setEditableTimesheet')
+    .patch(timesheet.setEditableTimesheet)
 };
