@@ -85,13 +85,13 @@ exports.approvalEmail = async function(req,res){
     }
 };
 
-exports.approveTimesheet = async function(req, res){
+exports.updateTimesheetStatus = async function(req, res){
     var domainID = req.params.domainID;
     var period = req.params.period;
     var year = req.params.year;
-    var approve = req.body;
+    var update = req.body;
 
-    await TimesheetApproval.findOneAndUpdate({"employee_id": domainID, "period_number": period, "year":year}, approve, {new:true})
+    await TimesheetApproval.findOneAndUpdate({"employee_id": domainID, "period_number": period, "year":year}, update, {new:true})
         .then(function(timesheetapproval){
             res.json(timesheetapproval);
         }).catch(function(){

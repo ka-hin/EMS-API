@@ -47,8 +47,8 @@ module.exports = function(app){
   app.route('/timesheet/approvalEmail')
     .post(timesheet.approvalEmail);
 
-  app.route('/timesheet/approveTimesheet/:domainID/:period/:year')
-    .patch(timesheet.approveTimesheet);
+  app.route('/timesheet/updateTimesheetStatus/:domainID/:period/:year')
+    .patch(timesheet.updateTimesheetStatus);
 
   app.route('/timesheet/approvalStatus/:domainID')
     .get(timesheet.approvalStatus);
