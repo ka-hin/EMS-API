@@ -12,9 +12,14 @@ var TimesheetApprovalSchema = new Schema({
       type: String,
       required: true
   },
-  is_approved: {
-      type: Boolean,
-      required: true
+  approval_status: {
+      type: String,
+      required: true,
+      default: "Pending"
+  },
+  date_submitted:{
+      type: String,
+      required:false
   },
   employee_id: {
       type: String,

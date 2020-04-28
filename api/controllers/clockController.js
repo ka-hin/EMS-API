@@ -91,9 +91,9 @@ async function createTimesheetApproval(period,year,domainID){
     const employee = await Employee.findOne({domain_id: domainID})
         .populate({path: "department", populate: {path:"department_head", select:"domain_id"}});
 
-    let isApproved = false;
+    let ApprovalStatus = "Pending";
     if(domainID===employee.department.department_head.domain_id){
-        isApproved = true;
+        ApprovalStatus = "Approved";
     }
     const timesheetapproval = await TimesheetApproval.findOne({employee_id: domainID, period_number: period, year: year});
 
@@ -101,7 +101,8 @@ async function createTimesheetApproval(period,year,domainID){
         const timesheetApprovalObj = {
             "period_number":period,
             "year":year,
-            "is_approved":isApproved,
+            "approval_status":ApprovalStatus,
+            "date_submitted":null,
             "employee_id": domainID,
             "manager_id": employee.department.department_head.domain_id
         }
