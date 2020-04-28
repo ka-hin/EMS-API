@@ -74,7 +74,8 @@ async function createTimesheet(domainID, periodNumber, year) {
                     "ot":0,
                     "ut":0,
                     "late":0,
-                    "remarks":day
+                    "remarks":day,
+                    "edit_status":null
                 };
 
                 new_timesheet.push(new Timesheet(timesheetObj));
