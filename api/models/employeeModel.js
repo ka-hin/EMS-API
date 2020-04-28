@@ -51,6 +51,9 @@ var EmployeeSchema = new Schema({
       type:Boolean,
       required: true
   }
+}, 
+{
+  versionKey: false
 });
 
 module.exports = mongoose.model('employee', EmployeeSchema, 'employees');

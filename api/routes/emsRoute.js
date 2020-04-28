@@ -1,6 +1,8 @@
 module.exports = function(app){
   var ems = require('../controllers/emsController');
   var auth = require('../controllers/authController');
+  var clock = require('../controllers/clockController');
+  var timesheet = require('../controllers/timesheetController');
 
   app.route('/login/:id/:pass')
     .get(auth.getLoginDetails);
@@ -25,4 +27,26 @@ module.exports = function(app){
 
   app.route('/schedule/allschedules')
     .get(ems.getAllSchedules);
+
+  //Clock In/Out
+
+  app.route('/clock/clockIn')
+    .patch(clock.clockIn);
+
+  app.route('/clock/clockOut')
+    .patch(clock.clockOut);
+
+  //Timesheet
+
+  app.route('/timesheet/viewTimesheet/:domainID/:month/:year')
+    .get(timesheet.viewTimesheet);
+
+  app.route('/timesheet/availableTimesheet/:domainID')
+    .get(timesheet.availableTimesheet);
+
+  app.route('/timesheet/approvalEmail')
+    .post(timesheet.approvalEmail);
+
+  app.route('/timesheet/approveTimesheet/:domainID/:period/:year')
+    .patch(timesheet.approveTimesheet);
 };

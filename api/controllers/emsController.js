@@ -8,7 +8,7 @@ exports.getProfileDetails = async function(req,res){
     const ProfileID = req.params.id;
     await Employee.findOne({domain_id:ProfileID},"-_id")
         .populate("schedule","-_id")
-        .populate({path: "department",select: "-_id", populate: {path:"department_head", select:"name"}})
+        .populate({path: "department",select: "-_id", populate: {path:"department_head", select:"domain_id name"}})
         .then(function(employee){
             res.json(employee);
         }).catch(function(){

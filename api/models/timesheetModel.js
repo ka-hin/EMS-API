@@ -4,24 +4,54 @@ var Schema = mongoose.Schema;
 
 
 var TimesheetSchema = new Schema({
-  date_in: {
-    type: String
+  domain_id: {
+      type: String,
+      required: true
   },
-  date_out: {
-      type: String
+  date_in: {
+      type: String,
+      required: true
   },
   time_in: {
-      type: String
+      type: String,
+      required: true
   },
   time_out: {
-      type: String
+      type: String,
+      required: true
   },
-  period_id: {
-      type: String
+  date_out: {
+    type: String,
+    required: false
   },
-  domain_id: {
-      type: String
+  period_number: {
+      type: String,
+      required: true
+  },
+  year: {
+    type: String,
+    required: true
+  },
+  ot: {
+    type: Number,
+    required: true
+  },
+  ut: {
+    type: Number,
+    required: true
+  },
+  late: {
+    type: Number,
+    required: true
+  },
+  remarks: {
+    type: String,
+    required: false
   }
+  
+}, 
+{
+  versionKey: false
 });
 
 module.exports = mongoose.model('timesheet', TimesheetSchema, 'timesheets');

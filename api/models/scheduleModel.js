@@ -19,6 +19,9 @@ var ScheduleSchema = new Schema({
   end_time: {
       type: String
   }
+}, 
+{
+  versionKey: false
 });
 
 module.exports = mongoose.model('schedule', ScheduleSchema, 'schedules');
