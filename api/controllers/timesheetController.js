@@ -67,11 +67,19 @@ exports.approvalEmail = async function(req,res){
                     Thank you and have a nice day.`
         };
 
-        transporter.sendMail(mailOptions, function(error, info){
+        transporter.sendMail(mailOptions, async function(error, info){
             if (error) {
-              res.send(error);
+                res.send(error);
             } else {
-              res.json('Email sent: ' + info.response);
+                const d = new Date();
+                const utc = d.getTime() + (d.getTimezoneOffset() * 60000);
+                const nd = new Date(utc + (3600000*8));
+                const date = ("0" + nd.getDate()).slice(-2);
+                const month = ("0" + (nd.getMonth() + 1)).slice(-2);
+
+                await TimesheetApproval.findOneAndUpdate({"employee_id": domainID, "period_number": period, "year":year},{date_submitted: date+"-"+month},{new:true});
+                
+                res.json('Email sent: ' + info.response);
             }
           });
     }
