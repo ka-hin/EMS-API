@@ -32,21 +32,53 @@ exports.availableTimesheet = async function(req, res){
      
 };
 
-exports.approvalEmail = async function(req,res){
+exports.sendEmail = async function(req,res){
     const body = req.body;
 
     const domainID = body.domain_id;
     const period = body.period;
     const year = body.year;
-
+    const type = body.type;
     const timesheetapproval = await TimesheetApproval.findOne({"employee_id": domainID, "period_number": period, "year":year});
 
     if(timesheetapproval){
-        const manager = await Employee.findOne({"domain_id": timesheetapproval.manager_id});
+        let sendTo, subject, htmlContent;
+        const obj = {
+            manager: await Employee.findOne({"domain_id": timesheetapproval.manager_id}),
+            employee: await Employee.findOne({"domain_id": domainID}),
 
-        const employee = await Employee.findOne({"domain_id": domainID});
+            approvalLink: `http://localhost:4200/timesheet-approval/${domainID}/${period}/${year}`,
+            rejectLink: `http://localhost:4200/timesheet-reject/${domainID}/${period}/${year}`
+        };
 
-        const approvalLink = `http://localhost:4200/timesheet-approval/${domainID}/${period}/${year}`;
+        const msg = {
+            approvalSubject: `Timesheet Approval for ${(Number(period)+1).toString()}/${year}, for ${obj["employee"].name}`,
+            rejectSubject: `Timesheet Rejected for ${(Number(period)+1).toString()}/${year}, for ${obj["employee"].name}`,
+
+            approvalHTML: `<p>Dear ${obj["manager"].name}, </p><br/>
+                            <p>Your employee, ${obj["employee"].name}, has completed his/her work for ${(Number(period)+1).toString()}/${year} and his/her needs to be approved.</p>
+                            <p>Kindly click on this totally safe link to be redirected to the official Hong Leong Bank Employee Management website to approve his/her timesheet. </p>
+                            <p><a href=\"${obj["approvalLink"]}\">Click Here</a> </p>
+                            Thank you and have a nice day.`,
+            rejectHTML: `<p>Dear ${obj["employee"].name}, </p><br/>
+                            <p>Your Department Head, ${obj["manager"].name}, has rejected your Timesheet for ${(Number(period)+1).toString()}/${year} due to some mistakes in it.</p>
+                            <p>Kindly click on this totally safe link to be redirected to the official Hong Leong Bank Employee Management website to make corrections to your timesheet. </p>
+                            <p><a href=\"${obj["rejectLink"]}\">Click Here</a> </p>
+                            Thank you and have a nice day.`
+        };
+
+        if(type == "Approval"){
+            sendTo = "manager";
+            subject = "approvalSubject";
+            htmlContent = "approvalHTML";
+        }else if(type == "Reject"){
+            sendTo = "employee";
+            subject = "rejectSubject";
+            htmlContent = "rejectHTML";
+        }else{
+            res.json({type:"Not Found!"});
+            return;
+        }
 
         var transporter = nodemailer.createTransport({
             service: 'gmail',
@@ -58,30 +90,30 @@ exports.approvalEmail = async function(req,res){
 
         var mailOptions = {
             from: 'consultationbookingsystem@gmail.com',
-            to: manager.email,
-            subject: `Timesheet Approval for ${(Number(period)+1).toString()}/${year}, for ${employee.name}`,
-            html: `<p>Dear ${manager.name}, </p><br/>
-                    <p>Your employee, ${employee.name}, has completed his/her work for the month and his/her needs to be approved.</p>
-                    <p>Kindly click on this totally safe link to be redirected to the official Hong Leong Bank Employee Management website to approve his/her timesheet. </p>
-                    <p><a href=\"${approvalLink}\">Click Here</a> </p>
-                    Thank you and have a nice day.`
+            to: obj[sendTo].email,
+            subject: msg[subject],
+            html: msg[htmlContent]
         };
 
         transporter.sendMail(mailOptions, async function(error, info){
             if (error) {
                 res.send(error);
             } else {
-                const d = new Date();
-                const utc = d.getTime() + (d.getTimezoneOffset() * 60000);
-                const nd = new Date(utc + (3600000*8));
-                const date = ("0" + nd.getDate()).slice(-2);
-                const month = ("0" + (nd.getMonth() + 1)).slice(-2);
+                if(type==="Approval"){
+                    const d = new Date();
+                    const utc = d.getTime() + (d.getTimezoneOffset() * 60000);
+                    const nd = new Date(utc + (3600000*8));
+                    const date = ("0" + nd.getDate()).slice(-2);
+                    const month = ("0" + (nd.getMonth() + 1)).slice(-2);
 
-                await TimesheetApproval.findOneAndUpdate({"employee_id": domainID, "period_number": period, "year":year},{date_submitted: date+"-"+month},{new:true});
-                
+                    await TimesheetApproval.findOneAndUpdate({"employee_id": domainID, "period_number": period, "year":year},{date_submitted: date+"-"+month},{new:true});
+                }                
                 res.json('Email sent: ' + info.response);
             }
           });
+    }else{
+        res.status(500);
+        res.send("There is a problem with the record!");
     }
 };
 
