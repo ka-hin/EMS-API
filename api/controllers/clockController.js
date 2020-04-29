@@ -130,12 +130,19 @@ async function calcLateHrs(domainID, dateIn, timeIn, year){
 }
 
 exports.clockIn = async function(req,res){
-    const body = req.body;
+    const d = new Date();
+    const utc = d.getTime() + (d.getTimezoneOffset() * 60000);
+    const nd = new Date(utc + (3600000*8));
+    const date = ("0" + nd.getDate()).slice(-2);
+    const month = ("0" + (nd.getMonth() + 1)).slice(-2);
+    const hours = ("0" + nd.getHours()).slice(-2);
+    const minutes = ("0" + nd.getMinutes()).slice(-2);
 
+    const body = req.body;
     const domainID = body.domain_id;
-    const dateIn = body.date_in;
-    const timeIn = body.time_in;
-    const year = body.year;
+    const dateIn = date+"-"+month;
+    const timeIn = hours+minutes;
+    const year = nd.getFullYear().toString();
     const period = (Number(dateIn.substr(3,2))-1).toString();
 
     const resolvePeriod = await createPeriods(year,res);
@@ -196,12 +203,19 @@ async function clockOut(domainID, dateIn, dateOut, timeOut, year){
 }
 
 exports.clockOut = async function(req, res){
-    const body = req.body;
+    const d = new Date();
+    const utc = d.getTime() + (d.getTimezoneOffset() * 60000);
+    const nd = new Date(utc + (3600000*8));
+    const date = ("0" + nd.getDate()).slice(-2);
+    const month = ("0" + (nd.getMonth() + 1)).slice(-2);
+    const hours = ("0" + nd.getHours()).slice(-2);
+    const minutes = ("0" + nd.getMinutes()).slice(-2);
 
+    const body = req.body;
     const domainID = body.domain_id;
     const dateIn = body.date_in;
-    const dateOut = body.date_out;
-    const timeOut = body.time_out;
+    const dateOut = date+"-"+month;
+    const timeOut =  hours+minutes;
     const year = body.year;
     const period = (Number(dateIn.substr(3,2))-1).toString();
 
