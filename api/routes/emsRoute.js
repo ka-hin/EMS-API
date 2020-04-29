@@ -54,5 +54,8 @@ module.exports = function(app){
     .get(timesheet.approvalStatus);
 
   app.route('/timesheet/setEditableTimesheet')
-    .patch(timesheet.setEditableTimesheet)
+    .patch(timesheet.setEditableTimesheet);
+
+  app.route('/timesheet/editTimesheet')
+    .patch(timesheet.editTimesheet);
 };

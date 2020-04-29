@@ -3,6 +3,7 @@ var nodemailer = require('nodemailer');
 var Timesheet = mongoose.model('timesheet');
 var TimesheetApproval = mongoose.model('timesheet_approval');
 var Employee = mongoose.model('employee');
+var clockController = require('./clockController');
 
 exports.viewTimesheet = async function(req, res){
     const domainID = req.params.domainID;
@@ -156,7 +157,38 @@ exports.setEditableTimesheet = async function(req, res){
             }).catch(function(){
                 res.status(500);
                 res.send("There is a problem with the record");
-            })
+            });
+    }
+    res.json(update);
+};
+
+exports.editTimesheet = async function(req, res){
+    const changes = req.body;
+    let update = [];
+
+    for(let i = 0; i < changes.length; i++){
+        changes[i].edit_status = "Edited";
+
+        await Timesheet.findOneAndUpdate({"domain_id": changes[i].domain_id, "date_in":changes[i].date_in, "year": changes[i].year, "edit_status":"Editable"},changes[i],{new:true})
+            .then(function(timesheet){
+                update.push(timesheet);
+            }).catch(function(){
+                res.status(500);
+                res.send("There is a problem with the record");
+            });
+
+        if(update[i]!=null){
+            if(changes[i].time_in){
+                await clockController.calcLateHrs(changes[i].domain_id, changes[i].date_in, changes[i].time_in, changes[i].year);
+            }
+            let dateOut = update[i].date_out;
+            if(dateOut==null){
+                dateOut = changes[i].date_in;
+            }
+            const finalchange = await clockController.calcOTnUT(changes[i].domain_id, changes[i].date_in, dateOut, update[i].time_out, changes[i].year);
+
+            update[i] = finalchange;
+        }
     }
     res.json(update);
 };

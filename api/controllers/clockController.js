@@ -124,6 +124,8 @@ async function calcLateHrs(domainID, dateIn, timeIn, year){
     const lateHrs = ((Number(timeIn.substr(0,2))*60 + Number(timeIn.substr(2,2))) - (Number(startTime.substr(0,2))*60 + Number(startTime.substr(2,2))))/60;
     if(lateHrs > 0){
         return await Timesheet.findOneAndUpdate({"domain_id": domainID, "date_in": dateIn, "year":year},{"late":lateHrs},{new:true});
+    }else{
+        return await Timesheet.findOneAndUpdate({"domain_id": domainID, "date_in": dateIn, "year":year},{"late":0},{new:true});
     }
 }
 
@@ -209,3 +211,6 @@ exports.clockOut = async function(req, res){
 
     res.json(clockedOutTimesheet);
 };
+
+exports.calcLateHrs = calcLateHrs;
+exports.calcOTnUT = calcOTnUT;
