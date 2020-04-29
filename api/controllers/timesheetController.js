@@ -55,9 +55,10 @@ exports.sendEmail = async function(req,res){
         const msg = {
             approvalSubject: `Timesheet Approval for ${(Number(period)+1).toString()}/${year}, for ${obj["employee"].name}`,
             rejectSubject: `Timesheet Rejected for ${(Number(period)+1).toString()}/${year}, for ${obj["employee"].name}`,
+            reapprovalSubject: `Timesheet Approval for ${(Number(period)+1).toString()}/${year} after corrections, for ${obj["employee"].name}`,
 
             approvalHTML: `<p>Dear ${obj["manager"].name}, </p><br/>
-                            <p>Your employee, ${obj["employee"].name}, has completed his/her work for ${(Number(period)+1).toString()}/${year} and his/her needs to be approved.</p>
+                            <p>Your employee, ${obj["employee"].name}, has completed his/her work for ${(Number(period)+1).toString()}/${year} and his/her timesheet needs to be approved.</p>
                             <p>Kindly click on this totally safe link to be redirected to the official Hong Leong Bank Employee Management website to approve his/her timesheet. </p>
                             <p><a href=\"${obj["approvalLink"]}\">Click Here</a> </p>
                             Thank you and have a nice day.`,
@@ -65,6 +66,11 @@ exports.sendEmail = async function(req,res){
                             <p>Your Department Head, ${obj["manager"].name}, has rejected your Timesheet for ${(Number(period)+1).toString()}/${year} due to some mistakes in it.</p>
                             <p>Kindly click on this totally safe link to be redirected to the official Hong Leong Bank Employee Management website to make corrections to your timesheet. </p>
                             <p><a href=\"${obj["rejectLink"]}\">Click Here</a> </p>
+                            Thank you and have a nice day.`,
+            reapprovalHTML: `<p>Dear ${obj["manager"].name}, </p><br/>
+                            <p>Your employee, ${obj["employee"].name}, has corrected his/her timesheet for ${(Number(period)+1).toString()}/${year}.</p>
+                            <p>Kindly click on this totally safe link to be redirected to the official Hong Leong Bank Employee Management website to approve his/her timesheet. </p>
+                            <p><a href=\"${obj["approvalLink"]}\">Click Here</a> </p>
                             Thank you and have a nice day.`
         };
 
@@ -76,6 +82,10 @@ exports.sendEmail = async function(req,res){
             sendTo = "employee";
             subject = "rejectSubject";
             htmlContent = "rejectHTML";
+        }else if(type == "Reapproval"){
+            sendTo = "manager";
+            subject = "reapprovalSubject";
+            htmlContent = "reapprovalHTML";
         }else{
             res.json({type:"Not Found!"});
             return;
@@ -100,14 +110,14 @@ exports.sendEmail = async function(req,res){
             if (error) {
                 res.send(error);
             } else {
-                if(type==="Approval"){
+                if(type==="Approval" || type ==="Reapproval"){
                     const d = new Date();
                     const utc = d.getTime() + (d.getTimezoneOffset() * 60000);
                     const nd = new Date(utc + (3600000*8));
                     const date = ("0" + nd.getDate()).slice(-2);
                     const month = ("0" + (nd.getMonth() + 1)).slice(-2);
 
-                    await TimesheetApproval.findOneAndUpdate({"employee_id": domainID, "period_number": period, "year":year},{date_submitted: date+"-"+month},{new:true});
+                    await TimesheetApproval.findOneAndUpdate({"employee_id": domainID, "period_number": period, "year":year},{approval_status:"Pending", date_submitted: date+"-"+month},{new:true});
                 }                
                 res.json('Email sent: ' + info.response);
             }
