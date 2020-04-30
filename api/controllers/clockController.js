@@ -3,6 +3,7 @@ var Period = mongoose.model('period');
 var Timesheet = mongoose.model('timesheet');
 var Employee = mongoose.model('employee');
 var TimesheetApproval = mongoose.model('timesheet_approval');
+var LastClockIn = mongoose.model('last_clock_in');
 
 async function createPeriods(year,res){
 
@@ -145,6 +146,35 @@ exports.clockIn = async function(req,res){
     const year = nd.getFullYear().toString();
     const period = (Number(dateIn.substr(3,2))-1).toString();
 
+    //to check for last clock in
+    const lastclockin = await LastClockIn.findOne({domain_id: domainID});
+    if(lastclockin === null){
+        const lastClockInObj = {
+            "domain_id" : domainID,
+            "date_in" : dateIn,
+            "year" : year
+        };
+
+        const new_lastclockin = new LastClockIn(lastClockInObj);
+        new_lastclockin.save(function(err){
+            if(err){
+                res.status(500);
+                res.send('There is a problem with the record');
+            }
+        });
+    }else{
+        if(lastclockin.date_in === null && lastclockin.year === null){
+            await LastClockIn.findOneAndUpdate({domain_id: domainID}, {date_in: dateIn, year: year}, {new:true})
+                .catch(function(){
+                    res.status(500);
+                    res.send('There is a problem with the record');
+                });
+        }else{
+            res.json({status:"Please clock out before clocking in!"});
+            return;
+        }
+    }
+
     const resolvePeriod = await createPeriods(year,res);
     await createTimesheet(domainID,period,year).then( async (doc) => {
 
@@ -213,10 +243,30 @@ exports.clockOut = async function(req, res){
 
     const body = req.body;
     const domainID = body.domain_id;
-    const dateIn = body.date_in;
+    let dateIn;
     const dateOut = date+"-"+month;
     const timeOut =  hours+minutes;
-    const year = body.year;
+    let year;
+
+    const lastclockin = await LastClockIn.findOne({domain_id: domainID});
+    if(lastclockin){
+        if(lastclockin.date_in != null && lastclockin.year != null){
+            dateIn = lastclockin.date_in;
+            year = lastclockin.year;
+            await LastClockIn.findOneAndUpdate({domain_id: domainID}, {date_in: null, year: null}, {new:true})
+                .catch(function(){
+                    res.status(500);
+                    res.send('There is a problem with the record');
+                });
+        }else{
+            res.json({status:"Please clock in before clocking out!"});
+            return;
+        }
+    }else{
+        res.json({status:"Please clock in before clocking out!"});
+        return;
+    }
+
     const period = (Number(dateIn.substr(3,2))-1).toString();
 
     await clockOut(domainID, dateIn, dateOut, timeOut, year);
