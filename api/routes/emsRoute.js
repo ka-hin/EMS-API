@@ -3,6 +3,7 @@ module.exports = function(app){
   var auth = require('../controllers/authController');
   var clock = require('../controllers/clockController');
   var timesheet = require('../controllers/timesheetController');
+  var holiday = require('../controllers/holidayController');
 
   app.route('/login/:id/:pass')
     .get(auth.getLoginDetails);
@@ -60,4 +61,8 @@ module.exports = function(app){
 
   app.route('/timesheet/editTimesheet')
     .patch(timesheet.editTimesheet);
+
+  //Holiday
+  app.route('/holiday/saveHoliday')
+    .post(holiday.saveHoliday);
 };
