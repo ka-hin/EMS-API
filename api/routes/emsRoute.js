@@ -36,6 +36,8 @@ module.exports = function(app){
   app.route('/clock/clockOut')
     .patch(clock.clockOut);
 
+  app.route('/clock/checkClockInStatus/:domainID')
+    .get(clock.checkClockInStatus)
   //Timesheet
 
   app.route('/timesheet/viewTimesheet/:domainID/:month/:year')

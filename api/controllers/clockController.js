@@ -276,5 +276,26 @@ exports.clockOut = async function(req, res){
     res.json(clockedOutTimesheet);
 };
 
+exports.checkClockInStatus = async function(req, res){
+    const domainID = req.params.domainID;
+
+    await LastClockIn.findOne({domain_id: domainID})
+        .then(function(lastclockin){
+            if(lastclockin===null){
+                res.json({last_clock_in:false});
+            }else{
+                if(lastclockin.date_in != null && lastclockin.year != null){
+                    res.json({last_clock_in:true})
+                }else if(lastclockin.date_in === null && lastclockin.year === null){
+                    res.json({last_clock_in:false});
+                }
+            }
+        }).catch(function(){
+            res.status(500);
+            res.send("There is a problem with the record");
+        })
+};
+
 exports.calcLateHrs = calcLateHrs;
 exports.calcOTnUT = calcOTnUT;
+
