@@ -16,6 +16,7 @@ var express = require('express'),
   Period = require('./api/models/periodModel'),
   TimesheetApproval = require('./api/models/timesheetApprovalModel'),
   LastClockIn = require('./api/models/lastClockInModel'),
+  Holiday = require('./api/models/holidayModel'),
   bodyParser = require("body-parser");
 
 mongoose.Promise=global.Promise;
