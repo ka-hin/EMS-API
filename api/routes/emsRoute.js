@@ -4,6 +4,7 @@ module.exports = function(app){
   var clock = require('../controllers/clockController');
   var timesheet = require('../controllers/timesheetController');
   var holiday = require('../controllers/holidayController');
+  var leave = require('../controllers/leaveController');
 
   app.route('/login/:id/:pass')
     .get(auth.getLoginDetails);
@@ -65,4 +66,8 @@ module.exports = function(app){
   //Holiday
   app.route('/holiday/saveHoliday')
     .post(holiday.saveHoliday);
+
+  //Leave
+  app.route('/leave/calcMinLeaveDate/:domainID')
+    .get(leave.calcMinLeaveDate);
 };
