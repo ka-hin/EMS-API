@@ -18,10 +18,6 @@ var HolidaySchema = new Schema({
     year: {
       type: String,
       required: true
-    },
-    days: {
-        type: Number,
-        required:true
     }
     
   }, 
