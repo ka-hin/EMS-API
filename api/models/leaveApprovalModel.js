@@ -4,6 +4,10 @@ var Schema = mongoose.Schema;
 
 
 var LeaveApprovalSchema = new Schema({
+  leave_type:{
+    type: String,
+    required: true
+  },
   date: {
     type: String,
     required: true
