@@ -4,6 +4,7 @@ var Timesheet = mongoose.model('timesheet');
 var Employee = mongoose.model('employee');
 var TimesheetApproval = mongoose.model('timesheet_approval');
 var LastClockIn = mongoose.model('last_clock_in');
+var Holiday = mongoose.model('holiday');
 
 async function createPeriods(year,res){
 
@@ -62,6 +63,11 @@ async function createTimesheet(domainID, periodNumber, year) {
 
                 if(d.getDay() === 0 || d.getDay() === 6){
                     day = "Weekend";
+                }
+
+                const holiday = await Holiday.findOne({date: dateIn, year: year});
+                if(holiday != null){
+                    day = holiday.holiday_name;
                 }
 
                 const timesheetObj = {

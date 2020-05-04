@@ -33,7 +33,7 @@ async function updateTimesheetHoliday(updates){
             const timesheet = await Timesheet.find({date_in: updates[i].date, year: updates[i].year});
 
             for(let j = 0; j < timesheet.length; j++){
-                await Timesheet.findOneAndUpdate({domain_id: timesheet[j].domain_id, date_in:timesheet[j].date_in, year: timesheet[j].year},{remarks: /*updates[i].holiday_name*/null},{new:true});
+                await Timesheet.findOneAndUpdate({domain_id: timesheet[j].domain_id, date_in:timesheet[j].date_in, year: timesheet[j].year},{remarks: updates[i].holiday_name},{new:true});
             } 
         }
     }
