@@ -38,3 +38,14 @@ async function updateTimesheetHoliday(updates){
         }
     }
 }
+
+exports.viewAllHoliday = async function(req,res){
+    await Holiday.find()
+        .sort("year")
+        .then(function(holiday){
+            res.json(holiday);
+        }).catch(function(){
+            res.status(500);
+            res.send("There is a problem with the record");
+        });
+};

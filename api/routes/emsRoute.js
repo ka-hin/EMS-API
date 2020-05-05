@@ -67,6 +67,9 @@ module.exports = function(app){
   app.route('/holiday/saveHoliday')
     .post(holiday.saveHoliday);
 
+  app.route('/holiday/viewAllHoliday')
+    .get(holiday.viewAllHoliday);
+
   //Leave
   app.route('/leave/calcMinLeaveDate/:domainID')
     .get(leave.calcMinLeaveDate);
