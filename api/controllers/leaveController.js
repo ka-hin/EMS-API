@@ -195,7 +195,7 @@ exports.checkAvailableLeaves = async function(req,res){
             res.send("Leave Type Not Found");
             return;
         }
-        const leaves = await LeaveApproval.find({employee_id: domainID, year: year, leave_type:leaveType});
+        const leaves = await LeaveApproval.find({employee_id: domainID, year: year, leave_type:leaveType, approval_status: {$ne:"Rejected"}});
 
         remainingLeaves = employee[lt] - leaves.length;
 
