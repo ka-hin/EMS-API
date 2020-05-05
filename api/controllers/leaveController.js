@@ -75,13 +75,18 @@ exports.applyLeave = async function(req, res){
     const employee = await Employee.findOne({domain_id: domainID})
         .populate({path: "department", populate: {path:"department_head", select:"domain_id"}});
 
+    let ApprovalStatus = "Pending";
+    if(domainID===employee.department.department_head.domain_id){
+        ApprovalStatus = "Approved";
+    }
+
     const leaveapproval = await LeaveApproval.findOne({employee_id: domainID, date: date, year: year});
     if(!leaveapproval){
         const leaveApprovalObj = {
             "leave_type" : leaveType,
             "date": date,
             "year": year,
-            "approval_status": "Pending",
+            "approval_status": ApprovalStatus,
             "employee_id": domainID,
             "manager_id":employee.department.department_head.domain_id
         };
