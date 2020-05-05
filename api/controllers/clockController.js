@@ -4,6 +4,7 @@ var Timesheet = mongoose.model('timesheet');
 var Employee = mongoose.model('employee');
 var TimesheetApproval = mongoose.model('timesheet_approval');
 var LastClockIn = mongoose.model('last_clock_in');
+var LeaveApproval = mongoose.model('leave_approval');
 var Holiday = mongoose.model('holiday');
 
 async function createPeriods(year,res){
@@ -60,6 +61,12 @@ async function createTimesheet(domainID, periodNumber, year) {
                 let dateIn = ("0"+ i).slice(-2)+"-"+("0"+(Number(periodNumber)+1)).slice(-2);
                 let d = new Date(Number(year), Number(periodNumber), i,+8);
                 let day = null;
+                let leaveType = null;
+
+                const leave = await LeaveApproval.findOne({employee_id:domainID, date: dateIn, year:year});
+                if(leave){
+                    leaveType = leave.leave_type;
+                }
 
                 if(d.getDay() === 0 || d.getDay() === 6){
                     day = "Weekend";
@@ -82,7 +89,8 @@ async function createTimesheet(domainID, periodNumber, year) {
                     "ut":0,
                     "late":0,
                     "remarks":day,
-                    "edit_status":null
+                    "edit_status":null,
+                    "leave":leaveType
                 };
 
                 new_timesheet.push(new Timesheet(timesheetObj));

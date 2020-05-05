@@ -2,6 +2,7 @@ var mongoose = require('mongoose');
 var Employee = mongoose.model('employee');
 var LeaveApproval = mongoose.model('leave_approval');
 var Holiday = mongoose.model('holiday');
+var Timesheet = mongoose.model('timesheet');
 var nodemailer = require('nodemailer');
 
 Date.prototype.addDays = function(days) {
@@ -210,12 +211,21 @@ exports.updateLeaveStatus = async function(req, res){
     const date = req.params.date;
     const year = req.params.year;
     const update = req.body;
+    let leaveType;
 
     await LeaveApproval.findOneAndUpdate({"employee_id": domainID, "date": date, "year":year}, update, {new:true})
         .then(function(leaveapproval){
+            leaveType = leaveapproval.leave_type;
             res.json(leaveapproval);
         }).catch(function(){
             res.status(500);
             res.send("There is a problem with the record");
-        })
+        });
+    if(update.approval_status==="Approved"){
+        await Timesheet.findOneAndUpdate({domain_id:domainID, date_in:date, year:year},{leave:leaveType},{new:true})
+            .catch(function(){
+                res.status(500);
+                res.send("Cannot update Timesheet");
+            });
+    }
 };
