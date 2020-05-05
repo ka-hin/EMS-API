@@ -76,4 +76,7 @@ module.exports = function(app){
 
   app.route('/leave/sendEmail')
     .post(leave.sendEmail);
+
+  app.route('/leave/checkAvailableLeaves/:domainID/:year/:leaveType')
+    .get(leave.checkAvailableLeaves);
 };

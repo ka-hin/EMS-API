@@ -176,3 +176,31 @@ exports.sendEmail = async function(req, res){
     }
 
 };
+
+exports.checkAvailableLeaves = async function(req,res){
+    const domainID = req.params.domainID;
+    const year = req.params.year;
+    const leaveType = req.params.leaveType;
+
+    const employee = await Employee.findOne({domain_id:domainID});
+
+    if(employee){
+        let lt = "annual_leave";
+        if(leaveType === "Annual"){
+            lt = "annual_leave";
+        }else if(leaveType === "Medical"){
+            lt = "medical_leave"
+        }else{
+            res.send("Leave Type Not Found");
+            return;
+        }
+        const leaves = await LeaveApproval.find({employee_id: domainID, year: year, leave_type:leaveType});
+
+        remainingLeaves = employee[lt] - leaves.length;
+
+        res.json({"remaining_leaves": remainingLeaves});
+    }else{
+        res.status(500);
+        res.send("Employee not Found");
+    }
+};
