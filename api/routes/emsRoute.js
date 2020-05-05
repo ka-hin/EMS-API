@@ -70,4 +70,10 @@ module.exports = function(app){
   //Leave
   app.route('/leave/calcMinLeaveDate/:domainID')
     .get(leave.calcMinLeaveDate);
+
+  app.route('/leave/applyLeave')
+    .post(leave.applyLeave);
+
+  app.route('/leave/sendEmail')
+    .post(leave.sendEmail);
 };
