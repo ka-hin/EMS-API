@@ -234,3 +234,17 @@ exports.updateLeaveStatus = async function(req, res){
             });
     }
 };
+
+exports.viewLeave = async function(req, res){
+    const domainID = req.params.domainID;
+    const date = req.params.date;
+    const year = req.params.year;
+
+    await LeaveApproval.findOne({employee_id: domainID, date: date, year: year})
+        .then(function(leave){
+            res.json(leave);
+        }).catch(function(){
+            res.status(500);
+            res.send("There is a problem with the record");
+        })
+};
