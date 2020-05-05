@@ -79,4 +79,7 @@ module.exports = function(app){
 
   app.route('/leave/checkAvailableLeaves/:domainID/:year/:leaveType')
     .get(leave.checkAvailableLeaves);
+
+  app.route('/leave/updateLeaveStatus/:domainID/:date/:year')
+    .patch(leave.updateLeaveStatus);
 };

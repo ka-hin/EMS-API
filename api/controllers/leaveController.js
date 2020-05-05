@@ -204,3 +204,18 @@ exports.checkAvailableLeaves = async function(req,res){
         res.send("Employee not Found");
     }
 };
+
+exports.updateLeaveStatus = async function(req, res){
+    const domainID = req.params.domainID;
+    const date = req.params.date;
+    const year = req.params.year;
+    const update = req.body;
+
+    await LeaveApproval.findOneAndUpdate({"employee_id": domainID, "date": date, "year":year}, update, {new:true})
+        .then(function(leaveapproval){
+            res.json(leaveapproval);
+        }).catch(function(){
+            res.status(500);
+            res.send("There is a problem with the record");
+        })
+};
