@@ -114,15 +114,11 @@ exports.applyLeave = async function(req, res){
 exports.sendEmail = async function(req, res){
     const body = req.body;
 
-    const d = new Date();
-    const utc = d.getTime() + (d.getTimezoneOffset() * 60000);
-    const nd = new Date(utc + (3600000*8));
-    const dateSubmitted = ("0" + nd.getDate()).slice(-2)+'-'+("0" + (nd.getMonth() + 1)).slice(-2);
-
     const domainID = body.domain_id;
     const date = body.date;
     const year = body.year;
     const type = body.type;
+    const dateSubmitted = body.date_submitted;
     const leaveapproval = await LeaveApproval.findOne({"employee_id": domainID, "date": date, "year":year});
 
     if(leaveapproval){
