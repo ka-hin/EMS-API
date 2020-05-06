@@ -28,6 +28,10 @@ var LeaveApprovalSchema = new Schema({
   manager_id: {
       type: String,
       required: true
+  },
+  date_submitted: {
+      type: String,
+      required: true
   }
 }, 
 {

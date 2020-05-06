@@ -65,44 +65,59 @@ exports.calcMinLeaveDate = async function(req,res){
 };
 
 exports.applyLeave = async function(req, res){
-    const body = req.body;
+    const leaveObjArr = req.body;
+    let saved = [];
 
-    const domainID = body.domain_id;
-    const leaveType = body.leave_type;
-    const date = body.date;
-    const year = body.year;
+    const d = new Date();
+    const utc = d.getTime() + (d.getTimezoneOffset() * 60000);
+    const nd = new Date(utc + (3600000*8));
+    const dateSubmitted = nd.getFullYear()+("0" + (nd.getMonth() + 1)).slice(-2)+("0" + nd.getDate()).slice(-2)+("0" + nd.getHours()).slice(-2)+("0" + nd.getMinutes()).slice(-2)+("0" + nd.getSeconds()).slice(-2);
 
-    const employee = await Employee.findOne({domain_id: domainID})
-        .populate({path: "department", populate: {path:"department_head", select:"domain_id"}});
+    for(let i = 0 ; i < leaveObjArr.length; i++){
+        const domainID = leaveObjArr[i].domain_id;
+        const leaveType = leaveObjArr[i].leave_type;
+        const date = leaveObjArr[i].date;
+        const year = leaveObjArr[i].year;
 
-    let ApprovalStatus = "Pending";
-    if(domainID===employee.department.department_head.domain_id){
-        ApprovalStatus = "Approved";
+        const employee = await Employee.findOne({domain_id: domainID})
+            .populate({path: "department", populate: {path:"department_head", select:"domain_id"}});
+
+        let ApprovalStatus = "Pending";
+        if(domainID===employee.department.department_head.domain_id){
+            ApprovalStatus = "Approved";
+        }
+
+        const leaveapproval = await LeaveApproval.findOne({employee_id: domainID, date: date, year: year});
+        if(!leaveapproval){
+            const leaveApprovalObj = {
+                "leave_type" : leaveType,
+                "date": date,
+                "year": year,
+                "approval_status": ApprovalStatus,
+                "employee_id": domainID,
+                "manager_id":employee.department.department_head.domain_id,
+                "date_submitted": dateSubmitted
+            };
+            const new_leaveApproval = new LeaveApproval(leaveApprovalObj);
+            await new_leaveApproval.save()
+                .then(function(newleaveapproval){
+                    saved.push(newleaveapproval);
+                }).catch(function(){
+                    res.status(500);
+                    res.send("There is a problem with the record");
+                })
+        }
     }
-
-    const leaveapproval = await LeaveApproval.findOne({employee_id: domainID, date: date, year: year});
-    if(!leaveapproval){
-        const leaveApprovalObj = {
-            "leave_type" : leaveType,
-            "date": date,
-            "year": year,
-            "approval_status": ApprovalStatus,
-            "employee_id": domainID,
-            "manager_id":employee.department.department_head.domain_id
-        };
-        const new_leaveApproval = new LeaveApproval(leaveApprovalObj);
-        await new_leaveApproval.save()
-            .then(function(newleaveapproval){
-                res.json(newleaveapproval);
-            }).catch(function(){
-                res.status(500);
-                res.send("There is a problem with the record");
-            })
-    }
+    res.json(saved);
 };
 
 exports.sendEmail = async function(req, res){
     const body = req.body;
+
+    const d = new Date();
+    const utc = d.getTime() + (d.getTimezoneOffset() * 60000);
+    const nd = new Date(utc + (3600000*8));
+    const dateSubmitted = ("0" + nd.getDate()).slice(-2)+'-'+("0" + (nd.getMonth() + 1)).slice(-2);
 
     const domainID = body.domain_id;
     const date = body.date;
@@ -116,7 +131,7 @@ exports.sendEmail = async function(req, res){
             manager: await Employee.findOne({"domain_id": leaveapproval.manager_id}),
             employee: await Employee.findOne({"domain_id": domainID}),
 
-            approvalLink: `http://localhost:4200/leave-approval/${domainID}/${date}/${year}`
+            approvalLink: `http://localhost:4200/leave-approval/${domainID}/${dateSubmitted}/${year}`
         };
 
         const msg = {
@@ -212,35 +227,40 @@ exports.checkAvailableLeaves = async function(req,res){
 };
 
 exports.updateLeaveStatus = async function(req, res){
-    const domainID = req.params.domainID;
-    const date = req.params.date;
-    const year = req.params.year;
-    const update = req.body;
-    let leaveType;
+    const leaveObjArr = req.body;
+    let updated = [];
 
-    await LeaveApproval.findOneAndUpdate({"employee_id": domainID, "date": date, "year":year}, update, {new:true})
-        .then(function(leaveapproval){
-            leaveType = leaveapproval.leave_type;
-            res.json(leaveapproval);
-        }).catch(function(){
-            res.status(500);
-            res.send("There is a problem with the record");
-        });
-    if(update.approval_status==="Approved"){
-        await Timesheet.findOneAndUpdate({domain_id:domainID, date_in:date, year:year},{leave:leaveType},{new:true})
-            .catch(function(){
+    for(let i = 0 ; i < leaveObjArr.length; i++){
+        const domainID = leaveObjArr[i].domain_id;
+        const date = leaveObjArr[i].date;
+        const year = leaveObjArr[i].year;
+        const approvalStatus = leaveObjArr[i].approval_status;
+        let leaveType;
+
+        await LeaveApproval.findOneAndUpdate({"employee_id": domainID, "date": date, "year":year}, {"approval_status":approvalStatus}, {new:true})
+            .then(function(leaveapproval){
+                leaveType = leaveapproval.leave_type;
+                updated.push(leaveapproval);
+            }).catch(function(){
                 res.status(500);
-                res.send("Cannot update Timesheet");
+                res.send("There is a problem with the record");
             });
+        if(approvalStatus==="Approved"){
+            await Timesheet.findOneAndUpdate({domain_id:domainID, date_in:date, year:year},{leave:leaveType},{new:true})
+                .catch(function(){
+                    res.status(500);
+                    res.send("Cannot update Timesheet");
+                });
+        }
     }
+    res.json(updated);
 };
 
 exports.viewLeave = async function(req, res){
     const domainID = req.params.domainID;
-    const date = req.params.date;
-    const year = req.params.year;
+    const dateSubmitted = req.params.dateSubmitted;
 
-    await LeaveApproval.findOne({employee_id: domainID, date: date, year: year})
+    await LeaveApproval.find({employee_id: domainID, date_submitted: dateSubmitted, approval_status:"Pending"})
         .then(function(leave){
             res.json(leave);
         }).catch(function(){
