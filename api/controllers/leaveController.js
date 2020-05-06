@@ -131,7 +131,7 @@ exports.sendEmail = async function(req, res){
             manager: await Employee.findOne({"domain_id": leaveapproval.manager_id}),
             employee: await Employee.findOne({"domain_id": domainID}),
 
-            approvalLink: `http://localhost:4200/leave-approval/${domainID}/${dateSubmitted}/${year}`
+            approvalLink: `http://localhost:4200/leave-approval/${domainID}/${dateSubmitted}`
         };
 
         const msg = {
