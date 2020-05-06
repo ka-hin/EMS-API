@@ -88,4 +88,7 @@ module.exports = function(app){
   
   app.route('/leave/viewLeave/:domainID/:dateSubmitted')
     .get(leave.viewLeave);
+
+  app.route('/leave/getApprovedOrPendingLeaveDates/:domainID')
+    .get(leave.getApprovedOrPendingLeaveDates);
 };

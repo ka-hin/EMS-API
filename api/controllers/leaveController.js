@@ -268,3 +268,15 @@ exports.viewLeave = async function(req, res){
             res.send("There is a problem with the record");
         })
 };
+
+exports.getApprovedOrPendingLeaveDates = async function(req,res){
+    const domainID = req.params.domainID;
+
+    await LeaveApproval.find({employee_id: domainID, approval_status: {$ne:"Rejected"}})
+        .then(function(leave){
+            res.json(leave);
+        }).catch(function(){
+            res.status(500);
+            res.send("There is a problem with the record");
+        });
+}
