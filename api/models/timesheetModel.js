@@ -47,6 +47,10 @@ var TimesheetSchema = new Schema({
   remarks: {
     type: String,
     required: false
+  },
+  edit_status: {
+    type: String,
+    required: false
   }
   
 }, 

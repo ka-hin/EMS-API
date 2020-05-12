@@ -74,7 +74,8 @@ async function createTimesheet(domainID, periodNumber, year) {
                     "ot":0,
                     "ut":0,
                     "late":0,
-                    "remarks":day
+                    "remarks":day,
+                    "edit_status":null
                 };
 
                 new_timesheet.push(new Timesheet(timesheetObj));
@@ -91,9 +92,9 @@ async function createTimesheetApproval(period,year,domainID){
     const employee = await Employee.findOne({domain_id: domainID})
         .populate({path: "department", populate: {path:"department_head", select:"domain_id"}});
 
-    let isApproved = false;
+    let ApprovalStatus = "Pending";
     if(domainID===employee.department.department_head.domain_id){
-        isApproved = true;
+        ApprovalStatus = "Approved";
     }
     const timesheetapproval = await TimesheetApproval.findOne({employee_id: domainID, period_number: period, year: year});
 
@@ -101,7 +102,8 @@ async function createTimesheetApproval(period,year,domainID){
         const timesheetApprovalObj = {
             "period_number":period,
             "year":year,
-            "is_approved":isApproved,
+            "approval_status":ApprovalStatus,
+            "date_submitted":null,
             "employee_id": domainID,
             "manager_id": employee.department.department_head.domain_id
         }
@@ -122,6 +124,8 @@ async function calcLateHrs(domainID, dateIn, timeIn, year){
     const lateHrs = ((Number(timeIn.substr(0,2))*60 + Number(timeIn.substr(2,2))) - (Number(startTime.substr(0,2))*60 + Number(startTime.substr(2,2))))/60;
     if(lateHrs > 0){
         return await Timesheet.findOneAndUpdate({"domain_id": domainID, "date_in": dateIn, "year":year},{"late":lateHrs},{new:true});
+    }else{
+        return await Timesheet.findOneAndUpdate({"domain_id": domainID, "date_in": dateIn, "year":year},{"late":0},{new:true});
     }
 }
 
@@ -207,3 +211,6 @@ exports.clockOut = async function(req, res){
 
     res.json(clockedOutTimesheet);
 };
+
+exports.calcLateHrs = calcLateHrs;
+exports.calcOTnUT = calcOTnUT;

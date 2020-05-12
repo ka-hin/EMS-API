@@ -2,6 +2,7 @@ var mongoose = require('mongoose');
 var Employee = mongoose.model('employee');
 var Department = mongoose.model('department');
 var Schedule = mongoose.model('schedule');
+var TimesheetApproval = mongoose.model('timesheet_approval');
 var md5 = require('md5');
 
 exports.getProfileDetails = async function(req,res){
@@ -42,7 +43,13 @@ exports.getAllEmployees = async function(req, res){
             Employee.find({department:employee.department, domain_id:{$ne:domainID},activated: true},'-_id -password')
             .populate("schedule","-_id schedule_name")
             .populate("department","-_id department_name")
-            .then(function(employee){
+            .lean()
+            .then(async function(employee){
+                for(let i = 0; i < employee.length; i ++){
+                    const timesheetapproval = await TimesheetApproval.find({employee_id: employee[i].domain_id}, "-_id -manager_id -employee_id");
+                    employee[i].timesheet_approval = timesheetapproval;
+                }
+
                 res.json(employee);
             }).catch(function(){
                 res.status(500);

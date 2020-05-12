@@ -44,9 +44,18 @@ module.exports = function(app){
   app.route('/timesheet/availableTimesheet/:domainID')
     .get(timesheet.availableTimesheet);
 
-  app.route('/timesheet/approvalEmail')
-    .post(timesheet.approvalEmail);
+  app.route('/timesheet/sendEmail')
+    .post(timesheet.sendEmail);
 
-  app.route('/timesheet/approveTimesheet/:domainID/:period/:year')
-    .patch(timesheet.approveTimesheet);
+  app.route('/timesheet/updateTimesheetStatus/:domainID/:period/:year')
+    .patch(timesheet.updateTimesheetStatus);
+
+  app.route('/timesheet/approvalStatus/:domainID')
+    .get(timesheet.approvalStatus);
+
+  app.route('/timesheet/setEditableTimesheet')
+    .patch(timesheet.setEditableTimesheet);
+
+  app.route('/timesheet/editTimesheet')
+    .patch(timesheet.editTimesheet);
 };
