@@ -129,10 +129,10 @@ exports.sendEmail = async function(req,res){
 };
 
 exports.updateTimesheetStatus = async function(req, res){
-    var domainID = req.params.domainID;
-    var period = req.params.period;
-    var year = req.params.year;
-    var update = req.body;
+    const domainID = req.params.domainID;
+    const period = req.params.period;
+    const year = req.params.year;
+    const update = req.body;
 
     await TimesheetApproval.findOneAndUpdate({"employee_id": domainID, "period_number": period, "year":year}, update, {new:true})
         .then(function(timesheetapproval){

@@ -3,6 +3,8 @@ module.exports = function(app){
   var auth = require('../controllers/authController');
   var clock = require('../controllers/clockController');
   var timesheet = require('../controllers/timesheetController');
+  var holiday = require('../controllers/holidayController');
+  var leave = require('../controllers/leaveController');
 
   app.route('/login/:id/:pass')
     .get(auth.getLoginDetails);
@@ -36,6 +38,8 @@ module.exports = function(app){
   app.route('/clock/clockOut')
     .patch(clock.clockOut);
 
+  app.route('/clock/checkClockInStatus/:domainID')
+    .get(clock.checkClockInStatus)
   //Timesheet
 
   app.route('/timesheet/viewTimesheet/:domainID/:month/:year')
@@ -58,4 +62,33 @@ module.exports = function(app){
 
   app.route('/timesheet/editTimesheet')
     .patch(timesheet.editTimesheet);
+
+  //Holiday
+  app.route('/holiday/saveHoliday')
+    .post(holiday.saveHoliday);
+
+  app.route('/holiday/viewAllHoliday')
+    .get(holiday.viewAllHoliday);
+
+  //Leave
+  app.route('/leave/calcMinLeaveDate/:domainID')
+    .get(leave.calcMinLeaveDate);
+
+  app.route('/leave/applyLeave')
+    .post(leave.applyLeave);
+
+  app.route('/leave/sendEmail')
+    .post(leave.sendEmail);
+
+  app.route('/leave/checkAvailableLeaves/:domainID/:year/:leaveType')
+    .get(leave.checkAvailableLeaves);
+
+  app.route('/leave/updateLeaveStatus')
+    .patch(leave.updateLeaveStatus);
+  
+  app.route('/leave/viewLeave/:domainID/:dateSubmitted')
+    .get(leave.viewLeave);
+
+  app.route('/leave/getApprovedOrPendingLeaveDates/:domainID')
+    .get(leave.getApprovedOrPendingLeaveDates);
 };

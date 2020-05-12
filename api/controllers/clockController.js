@@ -3,6 +3,9 @@ var Period = mongoose.model('period');
 var Timesheet = mongoose.model('timesheet');
 var Employee = mongoose.model('employee');
 var TimesheetApproval = mongoose.model('timesheet_approval');
+var LastClockIn = mongoose.model('last_clock_in');
+var LeaveApproval = mongoose.model('leave_approval');
+var Holiday = mongoose.model('holiday');
 
 async function createPeriods(year,res){
 
@@ -58,9 +61,20 @@ async function createTimesheet(domainID, periodNumber, year) {
                 let dateIn = ("0"+ i).slice(-2)+"-"+("0"+(Number(periodNumber)+1)).slice(-2);
                 let d = new Date(Number(year), Number(periodNumber), i,+8);
                 let day = null;
+                let leaveType = null;
+
+                const leave = await LeaveApproval.findOne({employee_id:domainID, date: dateIn, year:year});
+                if(leave){
+                    leaveType = leave.leave_type;
+                }
 
                 if(d.getDay() === 0 || d.getDay() === 6){
                     day = "Weekend";
+                }
+
+                const holiday = await Holiday.findOne({date: dateIn, year: year});
+                if(holiday != null){
+                    day = holiday.holiday_name;
                 }
 
                 const timesheetObj = {
@@ -75,7 +89,8 @@ async function createTimesheet(domainID, periodNumber, year) {
                     "ut":0,
                     "late":0,
                     "remarks":day,
-                    "edit_status":null
+                    "edit_status":null,
+                    "leave":leaveType
                 };
 
                 new_timesheet.push(new Timesheet(timesheetObj));
@@ -130,13 +145,49 @@ async function calcLateHrs(domainID, dateIn, timeIn, year){
 }
 
 exports.clockIn = async function(req,res){
-    const body = req.body;
+    const d = new Date();
+    const utc = d.getTime() + (d.getTimezoneOffset() * 60000);
+    const nd = new Date(utc + (3600000*8));
+    const date = ("0" + nd.getDate()).slice(-2);
+    const month = ("0" + (nd.getMonth() + 1)).slice(-2);
+    const hours = ("0" + nd.getHours()).slice(-2);
+    const minutes = ("0" + nd.getMinutes()).slice(-2);
 
+    const body = req.body;
     const domainID = body.domain_id;
-    const dateIn = body.date_in;
-    const timeIn = body.time_in;
-    const year = body.year;
+    const dateIn = date+"-"+month;
+    const timeIn = hours+minutes;
+    const year = nd.getFullYear().toString();
     const period = (Number(dateIn.substr(3,2))-1).toString();
+
+    //to check for last clock in
+    const lastclockin = await LastClockIn.findOne({domain_id: domainID});
+    if(lastclockin === null){
+        const lastClockInObj = {
+            "domain_id" : domainID,
+            "date_in" : dateIn,
+            "year" : year
+        };
+
+        const new_lastclockin = new LastClockIn(lastClockInObj);
+        new_lastclockin.save(function(err){
+            if(err){
+                res.status(500);
+                res.send('There is a problem with the record');
+            }
+        });
+    }else{
+        if(lastclockin.date_in === null && lastclockin.year === null){
+            await LastClockIn.findOneAndUpdate({domain_id: domainID}, {date_in: dateIn, year: year}, {new:true})
+                .catch(function(){
+                    res.status(500);
+                    res.send('There is a problem with the record');
+                });
+        }else{
+            res.json({status:"Please clock out before clocking in!"});
+            return;
+        }
+    }
 
     const resolvePeriod = await createPeriods(year,res);
     await createTimesheet(domainID,period,year).then( async (doc) => {
@@ -196,13 +247,40 @@ async function clockOut(domainID, dateIn, dateOut, timeOut, year){
 }
 
 exports.clockOut = async function(req, res){
-    const body = req.body;
+    const d = new Date();
+    const utc = d.getTime() + (d.getTimezoneOffset() * 60000);
+    const nd = new Date(utc + (3600000*8));
+    const date = ("0" + nd.getDate()).slice(-2);
+    const month = ("0" + (nd.getMonth() + 1)).slice(-2);
+    const hours = ("0" + nd.getHours()).slice(-2);
+    const minutes = ("0" + nd.getMinutes()).slice(-2);
 
+    const body = req.body;
     const domainID = body.domain_id;
-    const dateIn = body.date_in;
-    const dateOut = body.date_out;
-    const timeOut = body.time_out;
-    const year = body.year;
+    let dateIn;
+    const dateOut = date+"-"+month;
+    const timeOut =  hours+minutes;
+    let year;
+
+    const lastclockin = await LastClockIn.findOne({domain_id: domainID});
+    if(lastclockin){
+        if(lastclockin.date_in != null && lastclockin.year != null){
+            dateIn = lastclockin.date_in;
+            year = lastclockin.year;
+            await LastClockIn.findOneAndUpdate({domain_id: domainID}, {date_in: null, year: null}, {new:true})
+                .catch(function(){
+                    res.status(500);
+                    res.send('There is a problem with the record');
+                });
+        }else{
+            res.json({status:"Please clock in before clocking out!"});
+            return;
+        }
+    }else{
+        res.json({status:"Please clock in before clocking out!"});
+        return;
+    }
+
     const period = (Number(dateIn.substr(3,2))-1).toString();
 
     await clockOut(domainID, dateIn, dateOut, timeOut, year);
@@ -212,5 +290,26 @@ exports.clockOut = async function(req, res){
     res.json(clockedOutTimesheet);
 };
 
+exports.checkClockInStatus = async function(req, res){
+    const domainID = req.params.domainID;
+
+    await LastClockIn.findOne({domain_id: domainID})
+        .then(function(lastclockin){
+            if(lastclockin===null){
+                res.json({last_clock_in:false});
+            }else{
+                if(lastclockin.date_in != null && lastclockin.year != null){
+                    res.json({last_clock_in:true})
+                }else if(lastclockin.date_in === null && lastclockin.year === null){
+                    res.json({last_clock_in:false});
+                }
+            }
+        }).catch(function(){
+            res.status(500);
+            res.send("There is a problem with the record");
+        })
+};
+
 exports.calcLateHrs = calcLateHrs;
 exports.calcOTnUT = calcOTnUT;
+

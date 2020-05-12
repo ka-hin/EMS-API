@@ -50,6 +50,14 @@ var EmployeeSchema = new Schema({
   activated:{
       type:Boolean,
       required: true
+  },
+  annual_leave:{
+      type: Number,
+      required: true 
+  },
+  medical_leave:{
+      type: Number,
+      required: true
   }
 }, 
 {
