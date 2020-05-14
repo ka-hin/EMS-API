@@ -51,6 +51,8 @@ exports.viewAllHoliday = async function(req,res){
 exports.updateHoliday = async function(req, res){
     let holidayObjArr = req.body;
 
+    await checkHolidayMonth(holidayObjArr.date, holidayObjArr.year, res);
+
     await Holiday.findByIdAndUpdate(holidayObjArr._id, holidayObjArr,{new:true})
         .then(function(holiday){
             res.json(holiday);
@@ -59,3 +61,23 @@ exports.updateHoliday = async function(req, res){
             res.send("There is a problem with the record");
         });
 };
+
+async function checkHolidayMonth(date, year, res){
+    const d = new Date();
+    const utc = d.getTime() + (d.getTimezoneOffset() * 60000);
+    const nd = new Date(utc + (3600000*8));
+    const ndmonth = nd.getMonth() + 1;
+    const ndyear = nd.getFullYear();
+
+    const month = Number(date.substr(3,2));
+
+    if(ndyear > Number(year)){
+        res.send("Date must be next month onwards")
+        return;
+    }else if(ndyear === Number(year) ){
+        if((month-ndmonth)<=0){
+            res.send("Date must be next month onwards")
+            return;
+        }
+    }
+}
