@@ -208,7 +208,7 @@ exports.clockIn = async function(req,res){
         }
         await calcLateHrs(domainID, dateIn, timeIn, year);
         
-        const clockedInTimesheet = await Timesheet.find({"domain_id": domainID, "period_number": period, "year":year});
+        const clockedInTimesheet = await Timesheet.find({"domain_id": domainID, "period_number": period, "year":year}).sort("date_in");
         res.json(clockedInTimesheet);
     });  
 };
@@ -285,7 +285,7 @@ exports.clockOut = async function(req, res){
 
     await clockOut(domainID, dateIn, dateOut, timeOut, year);
     await calcOTnUT(domainID, dateIn, dateOut, timeOut, year);
-    const clockedOutTimesheet = await Timesheet.find({"domain_id": domainID, "period_number": period, "year":year});
+    const clockedOutTimesheet = await Timesheet.find({"domain_id": domainID, "period_number": period, "year":year}).sort("date_in");
 
     res.json(clockedOutTimesheet);
 };
