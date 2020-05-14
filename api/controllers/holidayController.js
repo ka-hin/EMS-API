@@ -47,3 +47,15 @@ exports.viewAllHoliday = async function(req,res){
             res.send("There is a problem with the record");
         });
 };
+
+exports.updateHoliday = async function(req, res){
+    let holidayObjArr = req.body;
+
+    await Holiday.findByIdAndUpdate(holidayObjArr._id, holidayObjArr,{new:true})
+        .then(function(holiday){
+            res.json(holiday);
+        }).catch(function(){
+            res.status(500);
+            res.send("There is a problem with the record");
+        });
+};
