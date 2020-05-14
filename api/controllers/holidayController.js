@@ -40,9 +40,20 @@ async function updateTimesheetHoliday(updates){
 }
 
 exports.viewAllHoliday = async function(req,res){
-    await Holiday.find()
-        .sort("year")
+    const holiday = await Holiday.find()
+        .lean()
         .then(function(holiday){
+            holiday.forEach(element => {
+                element["sort_date"] = new Date(element.year, Number(element.date.substr(3,2))-1, element.date.substr(0,2), +8);
+            });
+
+            holiday.sort(function(a, b) {
+                let keyA = new Date(a.sort_date),
+                    keyB = new Date(b.sort_date);
+                if (keyA < keyB) return -1;
+                if (keyA > keyB) return 1;
+                return 0;
+            });
             res.json(holiday);
         }).catch(function(){
             res.status(500);
