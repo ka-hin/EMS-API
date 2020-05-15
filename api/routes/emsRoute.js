@@ -30,6 +30,9 @@ module.exports = function(app){
   app.route('/schedule/allschedules')
     .get(ems.getAllSchedules);
 
+  app.route('/employee/changePassword')
+    .patch(ems.changePassword);
+    
   //Clock In/Out
 
   app.route('/clock/clockIn')

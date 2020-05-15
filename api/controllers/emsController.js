@@ -90,9 +90,9 @@ exports.addEmployee = async function(req, res){
     let month = ("0" + (date_ob.getMonth() + 1)).slice(-2);
     let year = date_ob.getFullYear();
     
-    // pwd = pwd + date + month + year;
+    pwd = pwd + date + month + year;
 
-    emp_Obj["password"] = md5(pwd + "123");//to be changed
+    emp_Obj["password"] = md5(pwd);
     emp_Obj["activated"] = true;
 
     var new_employee = new Employee(emp_Obj);
@@ -104,6 +104,19 @@ exports.addEmployee = async function(req, res){
         }
         res.json(employee);
     });
+};
+
+exports.changePassword = async function(req, res){
+    const domainID = req.body.domain_id;
+    const password = req.body.password;
+
+    await Employee.findOneAndUpdate({domain_id: domainID},{password:md5(password)},{new:true})
+        .then(function(){
+            res.json("Password changed successfully");
+        }).catch(function(){
+            res.status(500);
+            res.send("There is a problem with the record");
+        });
 };
 
 exports.getAllDepartments = async function(req, res){
