@@ -49,9 +49,13 @@ exports.viewAllHoliday = async function(req,res){
 };
 
 exports.updateHoliday = async function(req, res){
-    let holidayObjArr = req.body;
+    const holidayObjArr = req.body;
+    let flag = true;
 
-    await checkHolidayMonth(holidayObjArr.date, holidayObjArr.year, res);
+    flag = await checkHolidayMonth(holidayObjArr.date, holidayObjArr.year, res);
+    if(flag===false){
+        return;
+    }
 
     await Holiday.findByIdAndUpdate(holidayObjArr._id, holidayObjArr,{new:true})
         .then(function(holiday){
@@ -73,20 +77,28 @@ async function checkHolidayMonth(date, year, res){
 
     if(ndyear > Number(year)){
         res.send("Date must be next month onwards")
-        return;
+        return false;
     }else if(ndyear === Number(year) ){
         if((month-ndmonth)<=0){
             res.send("Date must be next month onwards")
-            return;
+            return false;
         }
     }
 }
 
 exports.deleteHoliday = async function(req, res){
     const id = req.params.id;
+    let flag = true;
 
     const holiday = await Holiday.findById(id);
-    checkHolidayMonth(holiday.date, holiday.year, res);
+    if(holiday===null){
+        res.send("Holiday not found");
+        return;
+    }
+    flag = await checkHolidayMonth(holiday.date, holiday.year, res);
+    if(flag===false){
+        return;
+    }
 
     await Holiday.findByIdAndDelete(id).then(function(del){
         res.json(del);
