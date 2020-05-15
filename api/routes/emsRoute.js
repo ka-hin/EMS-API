@@ -73,6 +73,9 @@ module.exports = function(app){
   app.route('/holiday/updateHoliday')
     .patch(holiday.updateHoliday);
 
+  app.route('/holiday/deleteHoliday/:id')
+    .delete(holiday.deleteHoliday);
+
   //Leave
   app.route('/leave/calcMinLeaveDate/:domainID')
     .get(leave.calcMinLeaveDate);

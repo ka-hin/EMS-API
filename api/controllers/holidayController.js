@@ -81,3 +81,17 @@ async function checkHolidayMonth(date, year, res){
         }
     }
 }
+
+exports.deleteHoliday = async function(req, res){
+    const id = req.params.id;
+
+    const holiday = await Holiday.findById(id);
+    checkHolidayMonth(holiday.date, holiday.year, res);
+
+    await Holiday.findByIdAndDelete(id).then(function(del){
+        res.json(del);
+    }).catch(function(){
+        res.status(500);
+        res.send("There is a problem with the record");
+    });
+};
