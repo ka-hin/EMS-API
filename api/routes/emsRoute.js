@@ -5,6 +5,7 @@ module.exports = function(app){
   var timesheet = require('../controllers/timesheetController');
   var holiday = require('../controllers/holidayController');
   var leave = require('../controllers/leaveController');
+  var department = require('../controllers/deptController');
 
   app.route('/login/:id/:pass')
     .get(auth.getLoginDetails);
@@ -32,6 +33,10 @@ module.exports = function(app){
 
   app.route('/employee/changePassword')
     .patch(ems.changePassword);
+
+  //Department
+  app.route('/department/createDepartment')
+    .post(department.createDepartment);
     
   //Clock In/Out
 
