@@ -4,6 +4,7 @@ var Department = mongoose.model('department');
 var Schedule = mongoose.model('schedule');
 var TimesheetApproval = mongoose.model('timesheet_approval');
 var md5 = require('md5');
+var nodemailer = require('nodemailer');
 
 exports.getProfileDetails = async function(req,res){
     const ProfileID = req.params.id;
@@ -111,8 +112,36 @@ exports.changePassword = async function(req, res){
     const password = req.body.password;
 
     await Employee.findOneAndUpdate({domain_id: domainID},{password:md5(password)},{new:true})
-        .then(function(){
-            res.json("Password changed successfully");
+        .then(function(employee){
+            const d = new Date();
+            const utc = d.getTime() + (d.getTimezoneOffset() * 60000);
+            const nd = new Date(utc + (3600000*8));
+            const date = ("0" + nd.getDate()).slice(-2)+'-'+("0" + (nd.getMonth() + 1)).slice(-2)+'-'+nd.getFullYear();
+
+            var transporter = nodemailer.createTransport({
+                service: 'gmail',
+                auth: {
+                  user: 'consultationbookingsystem@gmail.com',
+                  pass: 'consultation123!'
+                }
+            });
+    
+            var mailOptions = {
+                from: 'consultationbookingsystem@gmail.com',
+                to: employee.email,
+                subject: "Successfully Changed Password",
+                html: `<p>Dear ${employee.name}, </p><br/>
+                <p>You have succesfully changed your password on ${date} for the HLB Employee Management System.</p>
+                Thank you and have a nice day.`
+            };
+
+            transporter.sendMail(mailOptions, async function(error, info){
+                if (error) {
+                    res.send(error);
+                } else {           
+                    res.json("Password changed successfully");
+                }
+              });
         }).catch(function(){
             res.status(500);
             res.send("There is a problem with the record");
