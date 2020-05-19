@@ -37,6 +37,9 @@ module.exports = function(app){
   //Department
   app.route('/department/createDepartment')
     .post(department.createDepartment);
+
+  app.route('/department/editDepartment')
+    .patch(department.editDepartment);
     
   //Clock In/Out
 

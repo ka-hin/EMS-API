@@ -15,3 +15,15 @@ exports.createDepartment = async function(req, res){
         res.json(dept);
     });
 };
+
+exports.editDepartment = async function(req, res){
+    const deptObj = req.body;
+
+    await Department.findByIdAndUpdate(deptObj._id, deptObj,{new:true})
+        .then(function(department){
+            res.json(department);
+        }).catch(function(){
+            res.status(500);
+            res.send("There is a problem with the record");
+        });
+}
