@@ -4,7 +4,7 @@ var Department = mongoose.model('department');
 exports.createDepartment = async function(req, res){
     let deptObj = req.body;
 
-    //deptObj["activated"] = true;
+    deptObj["activated"] = true;
 
     const new_dept = new Department(deptObj);
     await new_dept.save(function(err, dept){

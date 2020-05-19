@@ -14,7 +14,12 @@ var DepartmentSchema = new Schema({
     required: false
   },
   level:{
-    type: String
+    type: String,
+    require: false
+  },
+  activated:{
+    type: Boolean,
+    require: true
   }
 }, 
 {
