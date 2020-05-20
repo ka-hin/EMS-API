@@ -45,6 +45,9 @@ module.exports = function(app){
   //Schedule
   app.route('/schedule/createSchedule')
     .post(schedule.createSchedule);
+
+  app.route('/schedule/editSchedule')
+    .patch(schedule.editSchedule);
     
   //Clock In/Out
 
