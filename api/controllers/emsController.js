@@ -110,8 +110,31 @@ exports.addEmployee = async function(req, res){
 exports.changePassword = async function(req, res){
     const domainID = req.body.domain_id;
     const password = req.body.password;
+    const newpass = req.body.newpass;
+    const connewpass = req.body.connewpass;
 
-    await Employee.findOneAndUpdate({domain_id: domainID},{password:md5(password)},{new:true})
+    const oldpass = await Employee.findOne({domain_id: domainID}, "password");
+    if(oldpass.password!= md5(password)){
+        res.json({error:"Incorrect Old Password!"});
+        return;
+    }
+
+    if(newpass.length<8 || newpass.length>20){
+        res.json({error:"New password must be between 8 to 20 characters"});
+        return;
+    }
+
+    if(newpass!= connewpass){
+        res.json({error:"New password must be the same as confirm new password!"});
+        return;
+    }
+
+    if(md5(newpass) === oldpass.password){
+        res.json({error:"New password cannot be the same as old password!"});
+        return;
+    }
+
+    await Employee.findOneAndUpdate({domain_id: domainID},{password:md5(newpass)},{new:true})
         .then(function(employee){
             const d = new Date();
             const utc = d.getTime() + (d.getTimezoneOffset() * 60000);
@@ -139,7 +162,7 @@ exports.changePassword = async function(req, res){
                 if (error) {
                     res.send(error);
                 } else {           
-                    res.json("Password changed successfully");
+                    res.json({success:"Password changed successfully"});
                 }
               });
         }).catch(function(){
