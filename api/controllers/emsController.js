@@ -29,7 +29,7 @@ exports.getAllEmployees = async function(req, res){
         }
 
         if(employee.role === "Admin"){
-            Employee.find({domain_id:{$ne:domainID}}, "-_id -password")
+            Employee.find({domain_id:{$ne:domainID}}, "-password")
             .populate("schedule","-_id schedule_name")
             .populate("department","-_id department_name")
             .then(function(employee){
@@ -41,7 +41,7 @@ exports.getAllEmployees = async function(req, res){
         }
 
         if(employee.role === "Manager"){
-            Employee.find({department:employee.department, domain_id:{$ne:domainID},activated: true},'-_id -password')
+            Employee.find({department:employee.department, domain_id:{$ne:domainID},activated: true},'-password')
             .populate("schedule","-_id schedule_name")
             .populate("department","-_id department_name")
             .lean()
