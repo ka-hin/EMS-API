@@ -8,9 +8,9 @@ var nodemailer = require('nodemailer');
 
 exports.getProfileDetails = async function(req,res){
     const ProfileID = req.params.id;
-    await Employee.findOne({domain_id:ProfileID},"-_id")
+    await Employee.findOne({domain_id:ProfileID})
         .populate("schedule")
-        .populate({path: "department", populate: {path:"department_head", select:"domain_id name"}})
+        .populate({path: "department", populate: {path:"department_head", select:"_id domain_id name"}})
         .then(function(employee){
             res.json(employee);
         }).catch(function(){
@@ -30,8 +30,8 @@ exports.getAllEmployees = async function(req, res){
 
         if(employee.role === "Admin"){
             Employee.find({domain_id:{$ne:domainID}}, "-password")
-            .populate("schedule","-_id schedule_name")
-            .populate("department","-_id department_name")
+            .populate("schedule","schedule_name")
+            .populate("department","department_name")
             .then(function(employee){
                 res.json(employee);
             }).catch(function(){
@@ -42,8 +42,8 @@ exports.getAllEmployees = async function(req, res){
 
         if(employee.role === "Manager"){
             Employee.find({department:employee.department, domain_id:{$ne:domainID},activated: true},'-password')
-            .populate("schedule","-_id schedule_name")
-            .populate("department","-_id department_name")
+            .populate("schedule","schedule_name")
+            .populate("department","department_name")
             .lean()
             .then(async function(employee){
                 for(let i = 0; i < employee.length; i ++){
