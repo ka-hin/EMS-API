@@ -172,7 +172,7 @@ exports.changePassword = async function(req, res){
 };
 
 exports.getAllDepartments = async function(req, res){
-    await Department.find({}).populate('department_head', 'name').then(function(department){
+    await Department.find({}).populate('department_head', 'domain_id name email').then(function(department){
         res.json(department);
     }).catch(function(){
         res.status(500);
