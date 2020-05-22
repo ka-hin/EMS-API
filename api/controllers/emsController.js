@@ -31,7 +31,7 @@ exports.getAllEmployees = async function(req, res){
         if(employee.role === "Admin"){
             Employee.find({domain_id:{$ne:domainID}}, "-password")
             .populate("schedule")
-            .populate("department")
+            .populate({path: "department", populate: {path:"department_head", select:"_id domain_id name email"}})
             .then(function(employee){
                 res.json(employee);
             }).catch(function(){
