@@ -79,7 +79,6 @@ exports.deptLateReport = async function(req, res){
     if(department){
         const employee = await Employee.find({department:department.department, domain_id:{$ne:ManagerID}});
 
-
         for(let i = 0; i < employee.length; i++){
             const reportObj = {
                 "domain_id":employee[i].domain_id,
@@ -90,6 +89,28 @@ exports.deptLateReport = async function(req, res){
         }
 
         res.json(report);
+    }else{
+        res.send("Employee does not have permission to view");
+    }
+};
+
+exports.OverallLateReport = async function(req, res){
+    const ManagerID = req.params.ManagerID;
+    
+    const department = await Employee.findOne({domain_id:ManagerID, role:"Manager"}, "-_id department");
+    if(department){
+        const employee = await Employee.find({department:department.department, domain_id:{$ne:ManagerID}});
+        
+        let averageLate = 0;
+
+        for(let i = 0; i < employee.length; i++){
+            const report = await LateReport(employee[i].domain_id);
+
+            averageLate = averageLate + report[0].y;
+        }
+        averageLate = Number((averageLate/employee.length).toFixed(2));
+
+        res.json([{name:"Late",y:averageLate},{name:"On-Time", y: Number((100-averageLate).toFixed(2))}]);
     }else{
         res.send("Employee does not have permission to view");
     }
