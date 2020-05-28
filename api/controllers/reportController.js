@@ -3,9 +3,7 @@ var Employee = mongoose.model('employee');
 var Timesheet = mongoose.model('timesheet');
 var Holiday = mongoose.model('holiday');
 
-exports.empLateReport = async function(req,res){
-    const domainID = req.params.domainID;
-
+async function LateReport(domainID){
     const d = new Date();
     const utc = d.getTime() + (d.getTimezoneOffset() * 60000);
     const nd = new Date(utc + (3600000*8));
@@ -23,7 +21,7 @@ exports.empLateReport = async function(req,res){
     weekday["Friday"] = 5;
     weekday["Saturday"] = 6;
 
-    await Timesheet.find({domain_id: domainID, period_number: period})
+    return await Timesheet.find({domain_id: domainID, period_number: period})
         .then(function(timesheet){
             let lateCount = 0;
             let workDays = 0;
@@ -62,9 +60,37 @@ exports.empLateReport = async function(req,res){
             }
 
             const latePercentage = Number((lateCount/workDays*100).toFixed(2));
-            res.json([{name:"Late",y:latePercentage},{name:"On-Time", y: Number((100-latePercentage).toFixed(2))}]);
+            return[{name:"Late",y:latePercentage},{name:"On-Time", y: Number((100-latePercentage).toFixed(2))}];
         }).catch(function(err){
-            res.status(500);
-            res.send(err);
+            return "There is a problem with the record."
         })
+}
+
+exports.empLateReport = async function(req, res){
+    const domainID = req.params.domainID;
+    res.json(await LateReport(domainID));
+};
+
+exports.deptLateReport = async function(req, res){
+    const ManagerID = req.params.ManagerID;
+    let report = [];
+    
+    const department = await Employee.findOne({domain_id:ManagerID, role:"Manager"}, "-_id department");
+    if(department){
+        const employee = await Employee.find({department:department.department, domain_id:{$ne:ManagerID}});
+
+
+        for(let i = 0; i < employee.length; i++){
+            const reportObj = {
+                "domain_id":employee[i].domain_id,
+                "name":employee[i].name,
+                "report": await LateReport(employee[i].domain_id)
+            };
+            report.push(reportObj);
+        }
+
+        res.json(report);
+    }else{
+        res.send("Employee does not have permission to view");
+    }
 };
