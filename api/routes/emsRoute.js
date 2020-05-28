@@ -7,6 +7,7 @@ module.exports = function(app){
   var leave = require('../controllers/leaveController');
   var department = require('../controllers/deptController');
   var schedule = require('../controllers/scheduleController');
+  var report = require('../controllers/reportController');
 
   app.route('/login/:id/:pass')
     .get(auth.getLoginDetails);
@@ -116,4 +117,8 @@ module.exports = function(app){
 
   app.route('/leave/getApprovedOrPendingLeaveDates/:domainID')
     .get(leave.getApprovedOrPendingLeaveDates);
+
+  //Report
+  app.route('/report/empLateReport/:domainID')
+    .get(report.empLateReport);
 };
