@@ -115,3 +115,58 @@ exports.OverallLateReport = async function(req, res){
         res.send("Employee does not have permission to view");
     }
 };
+
+async function LeaveReport(domainID){
+    const d = new Date();
+    const utc = d.getTime() + (d.getTimezoneOffset() * 60000);
+    const nd = new Date(utc + (3600000*8));
+    const period = nd.getMonth()-1;
+
+    return await Timesheet.find({domain_id: domainID, period_number: period})
+        .then(function(timesheet){
+            let annualLeaveCount = 0;
+            let medicalLeaveCount = 0;
+
+            for(let i = 0; i < timesheet.length; i++){
+                if(timesheet[i].leave === "Annual") {
+                    annualLeaveCount+=1;
+                }
+
+                if(timesheet[i].leave === "Medical") {
+                    medicalLeaveCount+=1;
+                }
+            }
+            if(annualLeaveCount===0 && medicalLeaveCount===0){
+                return[{name:"Annual Leave",y:0},{name:"Medical Leave", y:0 }];
+            }else{
+                const annualLeavePercentage = Number((annualLeaveCount/(annualLeaveCount+medicalLeaveCount)*100).toFixed(2));
+                return[{name:"Annual Leave",y:annualLeavePercentage},{name:"Medical Leave", y: Number((100-annualLeavePercentage).toFixed(2))}];
+            }
+            
+        }).catch(function(err){
+            return "There is a problem with the record."
+        })
+}
+
+exports.deptLeaveReport = async function(req, res){
+    const ManagerID = req.params.ManagerID;
+    let report = [];
+    
+    const department = await Employee.findOne({domain_id:ManagerID, role:"Manager"}, "-_id department");
+    if(department){
+        const employee = await Employee.find({department:department.department, domain_id:{$ne:ManagerID}});
+
+        for(let i = 0; i < employee.length; i++){
+            const reportObj = {
+                "domain_id":employee[i].domain_id,
+                "name":employee[i].name,
+                "report": await LeaveReport(employee[i].domain_id)
+            };
+            report.push(reportObj);
+        }
+
+        res.json(report);
+    }else{
+        res.send("Employee does not have permission to view");
+    }
+};
