@@ -130,4 +130,7 @@ module.exports = function(app){
 
   app.route('/report/deptLeaveReport/:ManagerID')
     .get(report.deptLeaveReport);
+
+  app.route('/report/overallLeaveReport/:ManagerID')
+    .get(report.OverallLeaveReport);
 };

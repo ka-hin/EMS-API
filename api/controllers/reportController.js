@@ -170,3 +170,31 @@ exports.deptLeaveReport = async function(req, res){
         res.send("Employee does not have permission to view");
     }
 };
+
+exports.OverallLeaveReport = async function(req, res){
+    const ManagerID = req.params.ManagerID;
+    
+    const department = await Employee.findOne({domain_id:ManagerID, role:"Manager"}, "-_id department");
+    if(department){
+        const employee = await Employee.find({department:department.department, domain_id:{$ne:ManagerID}});
+        
+        let averageAnnualLeave = 0;
+        let employeeCount = 0;
+
+        for(let i = 0; i < employee.length; i++){
+            const report = await LeaveReport(employee[i].domain_id);
+
+            if(report[0].y === 0 && report[1].y === 0){
+                console.log(employee[i].name + "is excluded because does not contain report");
+            }else{
+                averageAnnualLeave = averageAnnualLeave + report[0].y;
+                employeeCount += 1;
+            }
+        }
+        averageAnnualLeave = Number((averageAnnualLeave/employeeCount).toFixed(2));
+
+        res.json([{name:"Annual Leave",y:averageAnnualLeave},{name:"Medical Leave", y: Number((100-averageAnnualLeave).toFixed(2))}]);
+    }else{
+        res.send("Employee does not have permission to view");
+    }
+};
