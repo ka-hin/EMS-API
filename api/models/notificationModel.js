@@ -26,7 +26,7 @@ var NotificationSchema = new Schema({
   },
   link: {
       type: String,
-      required: true
+      required: false
   },
   seen: {
       type: Boolean,
