@@ -14,7 +14,7 @@ mongoose.connect('mongodb+srv://freeuser:freeuser@cluster0-wvlrg.mongodb.net/EMS
 
         socket.on("getNotifications", async function(domainID){
             await Notification.find({domain_id:domainID, seen: false}).then(function(notification){
-                client.emit('notifications', notification);
+                socket.emit('notifications', notification);
             }).catch(function(err){
                 console.log(err);
             });
@@ -52,5 +52,12 @@ mongoose.connect('mongodb+srv://freeuser:freeuser@cluster0-wvlrg.mongodb.net/EMS
             });
 
         });
+
+        socket.on("seenNotification", async function(notif_id){
+            await Notification.findByIdAndUpdate(notif_id,{seen:true}, {new:true})
+                .catch(function(err){
+                    console.log(err);
+                })
+        })
     });
 });
