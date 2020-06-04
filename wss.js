@@ -12,12 +12,42 @@ mongoose.connect('mongodb+srv://freeuser:freeuser@cluster0-wvlrg.mongodb.net/EMS
     client.on("connection", function(socket){
         const Notification = mongoose.model('notification');
 
-        socket.on("getNotifications", function(domainID){
-            Notification.find({domain_id:domainID}).then(function(notification){
+        socket.on("getNotifications", async function(domainID){
+            await Notification.find({domain_id:domainID, seen: false}).then(function(notification){
                 client.emit('notifications', notification);
             }).catch(function(err){
                 console.log(err);
             });
-        })
+        });
+
+        socket.on("newNotification", async function(data){
+            const d = new Date();
+            const utc = d.getTime() + (d.getTimezoneOffset() * 60000);
+            const nd = new Date(utc + (3600000*8));
+            const date = ("0" + nd.getDate()).slice(-2);
+            const month = ("0" + (nd.getMonth() + 1)).slice(-2);
+            const year = nd.getFullYear().toString();
+
+            const domainID = data.domain_id;
+            const content = data.content;
+            const link = data.link;
+
+            const notificationObj ={
+                "domain_id": domainID,
+                "date": date+"-"+month,
+                "year": year,
+                "content": content,
+                "link": link,
+                "seen": false
+            }
+
+            const new_notification = new Notification(notificationObj);
+            await new_notification.save(function(err){
+                if(err){
+                    console.log('There is a problem with the record');
+                }
+            });
+
+        });
     });
 });
