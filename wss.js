@@ -27,6 +27,8 @@ mongoose.connect('mongodb+srv://freeuser:freeuser@cluster0-wvlrg.mongodb.net/EMS
             const date = ("0" + nd.getDate()).slice(-2);
             const month = ("0" + (nd.getMonth() + 1)).slice(-2);
             const year = nd.getFullYear().toString();
+            const hours = ("0" + nd.getHours()).slice(-2);
+            const minutes = ("0" + nd.getMinutes()).slice(-2);
 
             const domainID = data.domain_id;
             const content = data.content;
@@ -36,6 +38,7 @@ mongoose.connect('mongodb+srv://freeuser:freeuser@cluster0-wvlrg.mongodb.net/EMS
                 "domain_id": domainID,
                 "date": date+"-"+month,
                 "year": year,
+                "time": hours+minutes,
                 "content": content,
                 "link": link,
                 "seen": false

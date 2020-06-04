@@ -16,6 +16,10 @@ var NotificationSchema = new Schema({
       type: String,
       required: true
   },
+  time:{
+      type: String,
+      required: true
+  },
   content: {
       type: String,
       required: true
