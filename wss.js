@@ -47,7 +47,7 @@ mongoose.connect('mongodb+srv://freeuser:freeuser@cluster0-wvlrg.mongodb.net/EMS
             const new_notification = new Notification(notificationObj);
             await new_notification.save(function(err){
                 if(err){
-                    console.log('There is a problem with the record');
+                    console.log(err);
                 }
             });
 
