@@ -59,7 +59,10 @@ mongoose.connect('mongodb+srv://freeuser:freeuser@cluster0-wvlrg.mongodb.net/EMS
 
         });
 
-        socket.on("seenNotification", async function(notif_id){
+        socket.on("seenNotification", async function(data){
+            const notif_id = data.notif_id;
+            const domainID = data.domain_id;
+
             await Notification.findByIdAndUpdate(notif_id,{seen:true}, {new:true})
                 .catch(function(err){
                     console.log(err);
