@@ -51,6 +51,12 @@ mongoose.connect('mongodb+srv://freeuser:freeuser@cluster0-wvlrg.mongodb.net/EMS
                 }
             });
 
+            await Notification.find({domain_id:domainID, seen: false}).then(function(notification){
+                socket.emit('notifications', notification);
+            }).catch(function(err){
+                console.log(err);
+            });
+
         });
 
         socket.on("seenNotification", async function(notif_id){
@@ -58,6 +64,12 @@ mongoose.connect('mongodb+srv://freeuser:freeuser@cluster0-wvlrg.mongodb.net/EMS
                 .catch(function(err){
                     console.log(err);
                 })
+
+            await Notification.find({domain_id:domainID, seen: false}).then(function(notification){
+                socket.emit('notifications', notification);
+            }).catch(function(err){
+                console.log(err);
+            });
         })
     });
 });
