@@ -12,8 +12,8 @@ mongoose.connect('mongodb+srv://freeuser:freeuser@cluster0-wvlrg.mongodb.net/EMS
     client.on("connection", function(socket){
         const Notification = mongoose.model('notification');
 
-        socket.on("getNotifications", async function(domainID){
-            await Notification.find({domain_id:domainID, seen: false}).then(function(notification){
+        socket.on("getNotifications", async function(){
+            await Notification.find({seen: false}).then(function(notification){
                 client.emit('notifications', notification);
             }).catch(function(err){
                 console.log(err);
@@ -51,7 +51,7 @@ mongoose.connect('mongodb+srv://freeuser:freeuser@cluster0-wvlrg.mongodb.net/EMS
                 }
             });
 
-            await Notification.find({domain_id:domainID, seen: false}).then(function(notification){
+            await Notification.find({seen: false}).then(function(notification){
                 client.emit('notifications', notification);
             }).catch(function(err){
                 console.log(err);
@@ -61,14 +61,13 @@ mongoose.connect('mongodb+srv://freeuser:freeuser@cluster0-wvlrg.mongodb.net/EMS
 
         socket.on("seenNotification", async function(data){
             const notif_id = data.notif_id;
-            const domainID = data.domain_id;
 
             await Notification.findByIdAndUpdate(notif_id,{seen:true}, {new:true})
                 .catch(function(err){
                     console.log(err);
                 })
 
-            await Notification.find({domain_id:domainID, seen: false}).then(function(notification){
+            await Notification.find({seen: false}).then(function(notification){
                 client.emit('notifications', notification);
             }).catch(function(err){
                 console.log(err);
