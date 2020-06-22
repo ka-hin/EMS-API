@@ -5,40 +5,63 @@ var Schema = mongoose.Schema;
 
 var EmployeeSchema = new Schema({
   domain_id: {
-    type: String
+    type: String,
+    required: true
   },
   name: {
-    type: String
+    type: String,
+    required: true
   },
   password:{
-      type: String
+      type: String,
+      required: true
   },
   gender: {
     type: String,
-    enum : ["Male", "Female"]
+    enum : ["Male", "Female"],
+    required: true
   },
   address: {
-    type: String
+    type: String,
+    required: false
   },
   ic:{
-    type: String
+    type: String,
+    required: true
   },
   email:{
-    type: String
+    type: String,
+    required: true
   },
-  schedule_id:{
-      type: String
+  schedule:{
+      type: Schema.Types.ObjectId,
+      ref: 'schedule',
+      required: true
   },
-  department_id:{
-      type: String
+  department:{
+      type: Schema.Types.ObjectId,
+      ref: 'department',
+      required: true
   },
   role:{
       type: String,
       enum: ["Admin", "Manager", "Staff"]
   },
   activated:{
-      type:Boolean
+      type:Boolean,
+      required: true
+  },
+  annual_leave:{
+      type: Number,
+      required: true 
+  },
+  medical_leave:{
+      type: Number,
+      required: true
   }
+}, 
+{
+  versionKey: false
 });
 
 module.exports = mongoose.model('employee', EmployeeSchema, 'employees');

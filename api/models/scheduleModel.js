@@ -4,7 +4,7 @@ var Schema = mongoose.Schema;
 
 
 var ScheduleSchema = new Schema({
-  schedule_id: {
+  schedule_name: {
     type: String
   },
   days_of_work: {
@@ -18,7 +18,14 @@ var ScheduleSchema = new Schema({
   },
   end_time: {
       type: String
+  },
+  activated:{
+    type: Boolean,
+    require: true
   }
+}, 
+{
+  versionKey: false
 });
 
 module.exports = mongoose.model('schedule', ScheduleSchema, 'schedules');
