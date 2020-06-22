@@ -3,7 +3,7 @@ const mongoose = require('mongoose'),
 Notification = require('./api/models/notificationModel');
 
 mongoose.Promise=global.Promise;
-mongoose.connect('mongodb+srv://freeuser:freeuser@cluster0-wvlrg.mongodb.net/EMS', function(err){
+mongoose.connect(process.env.DATABASE_URL, function(err){
     if(err){
         console.log(err);
     }
