@@ -5,6 +5,9 @@ module.exports = function(app){
   var timesheet = require('../controllers/timesheetController');
   var holiday = require('../controllers/holidayController');
   var leave = require('../controllers/leaveController');
+  var department = require('../controllers/deptController');
+  var schedule = require('../controllers/scheduleController');
+  var report = require('../controllers/reportController');
 
   app.route('/login/:id/:pass')
     .get(auth.getLoginDetails);
@@ -30,6 +33,23 @@ module.exports = function(app){
   app.route('/schedule/allschedules')
     .get(ems.getAllSchedules);
 
+  app.route('/employee/changePassword')
+    .patch(ems.changePassword);
+
+  //Department
+  app.route('/department/createDepartment')
+    .post(department.createDepartment);
+
+  app.route('/department/editDepartment')
+    .patch(department.editDepartment);
+
+  //Schedule
+  app.route('/schedule/createSchedule')
+    .post(schedule.createSchedule);
+
+  app.route('/schedule/editSchedule')
+    .patch(schedule.editSchedule);
+    
   //Clock In/Out
 
   app.route('/clock/clockIn')
@@ -70,6 +90,12 @@ module.exports = function(app){
   app.route('/holiday/viewAllHoliday')
     .get(holiday.viewAllHoliday);
 
+  app.route('/holiday/updateHoliday')
+    .patch(holiday.updateHoliday);
+
+  app.route('/holiday/deleteHoliday/:id')
+    .delete(holiday.deleteHoliday);
+
   //Leave
   app.route('/leave/calcMinLeaveDate/:domainID')
     .get(leave.calcMinLeaveDate);
@@ -91,4 +117,20 @@ module.exports = function(app){
 
   app.route('/leave/getApprovedOrPendingLeaveDates/:domainID')
     .get(leave.getApprovedOrPendingLeaveDates);
+
+  //Report
+  app.route('/report/empLateReport/:domainID')
+    .get(report.empLateReport);
+
+  app.route('/report/deptLateReport/:ManagerID')
+    .get(report.deptLateReport);
+
+  app.route('/report/overallLateReport/:ManagerID')
+    .get(report.OverallLateReport);
+
+  app.route('/report/deptLeaveReport/:ManagerID')
+    .get(report.deptLeaveReport);
+
+  app.route('/report/overallLeaveReport/:ManagerID')
+    .get(report.OverallLeaveReport);
 };

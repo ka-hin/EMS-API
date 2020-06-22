@@ -23,29 +23,87 @@ exports.saveHoliday = async function(req, res){
         }
         
     }
-    await updateTimesheetHoliday(saved);
     res.send(saved);
 };
 
-async function updateTimesheetHoliday(updates){
-    for(let i = 0 ; i < updates.length; i++){
-        if(updates[i] != null){
-            const timesheet = await Timesheet.find({date_in: updates[i].date, year: updates[i].year});
-
-            for(let j = 0; j < timesheet.length; j++){
-                await Timesheet.findOneAndUpdate({domain_id: timesheet[j].domain_id, date_in:timesheet[j].date_in, year: timesheet[j].year},{remarks: updates[i].holiday_name},{new:true});
-            } 
-        }
-    }
-}
-
 exports.viewAllHoliday = async function(req,res){
-    await Holiday.find()
-        .sort("year")
+    const holiday = await Holiday.find()
+        .lean()
+        .then(function(holiday){
+            holiday.forEach(element => {
+                element["sort_date"] = new Date(element.year, Number(element.date.substr(3,2))-1, element.date.substr(0,2), +8);
+            });
+
+            holiday.sort(function(a, b) {
+                let keyA = new Date(a.sort_date),
+                    keyB = new Date(b.sort_date);
+                if (keyA < keyB) return -1;
+                if (keyA > keyB) return 1;
+                return 0;
+            });
+            res.json(holiday);
+        }).catch(function(){
+            res.status(500);
+            res.send("There is a problem with the record");
+        });
+};
+
+exports.updateHoliday = async function(req, res){
+    const holidayObjArr = req.body;
+    let flag = true;
+
+    flag = await checkHolidayMonth(holidayObjArr.date, holidayObjArr.year, res);
+    if(flag===false){
+        return;
+    }
+
+    await Holiday.findByIdAndUpdate(holidayObjArr._id, holidayObjArr,{new:true})
         .then(function(holiday){
             res.json(holiday);
         }).catch(function(){
             res.status(500);
             res.send("There is a problem with the record");
         });
+};
+
+async function checkHolidayMonth(date, year, res){
+    const d = new Date();
+    const utc = d.getTime() + (d.getTimezoneOffset() * 60000);
+    const nd = new Date(utc + (3600000*8));
+    const ndmonth = nd.getMonth() + 1;
+    const ndyear = nd.getFullYear();
+
+    const month = Number(date.substr(3,2));
+
+    if(ndyear > Number(year)){
+        res.send("Date must be next month onwards")
+        return false;
+    }else if(ndyear === Number(year) ){
+        if((month-ndmonth)<=0){
+            res.send("Date must be next month onwards")
+            return false;
+        }
+    }
+}
+
+exports.deleteHoliday = async function(req, res){
+    const id = req.params.id;
+    let flag = true;
+
+    const holiday = await Holiday.findById(id);
+    if(holiday===null){
+        res.send("Holiday not found");
+        return;
+    }
+    flag = await checkHolidayMonth(holiday.date, holiday.year, res);
+    if(flag===false){
+        return;
+    }
+
+    await Holiday.findByIdAndDelete(id).then(function(del){
+        res.json(del);
+    }).catch(function(){
+        res.status(500);
+        res.send("There is a problem with the record");
+    });
 };

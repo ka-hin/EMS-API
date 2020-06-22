@@ -18,6 +18,10 @@ var ScheduleSchema = new Schema({
   },
   end_time: {
       type: String
+  },
+  activated:{
+    type: Boolean,
+    require: true
   }
 }, 
 {
