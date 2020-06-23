@@ -1,7 +1,7 @@
 var cors = require("cors");
 
 var corsOptions = {
-    origin: 'http://localhost:4200',
+    origin: process.env.UI_URL,
     optionsSuccessStatus: 200 // some legacy browsers (IE11, various SmartTVs) choke on 204
   }
 
@@ -22,14 +22,14 @@ var express = require('express'),
   bodyParser = require("body-parser");
 
 mongoose.Promise=global.Promise;
-mongoose.connect('mongodb+srv://freeuser:freeuser@cluster0-wvlrg.mongodb.net/EMS').catch(err => {
+mongoose.connect(process.env.DATABASE_URL).catch(err => {
   console.log(err);
 });
 mongoose.set('useFindAndModify', false);
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended:false}));
-app.use(cors());
+app.use(cors(corsOptions));
 
 var routes = require('./api/routes/emsRoute');
 routes(app);
